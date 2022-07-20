@@ -1,24 +1,26 @@
 from flask import Flask
-from core.db import init_db, db
-from core.config import Config
+
+from .core.db import init_db, db
 
 
 def create_app():
     # инициализация приложения
     app = Flask(__name__)
-    app.config.from_object(Config)
+    # app.config.from_object(Config)
 
     # инициализация базы данных
     init_db(app)
 
-    # создаем таблицы в БД если нет
-    db.create_all(app=app)
 
-    # регистрация blueprints
-    from views.auth import auth
-    app.register_blueprint(auth, url_prefix='auth/')
+    # регистрация blueprints для auth ручек
+    from .views.auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
 
+    from .views.main_page import main as main_blueprint
+    app.register_blueprint(main_blueprint)
     # регистрация моделей
     from models import User
 
+    # создаем таблицы в БД если нет
+    db.create_all(app=app)
     return app
