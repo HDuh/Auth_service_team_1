@@ -37,9 +37,7 @@ class SignUp(Resource):
                 email = form.email.data
                 hashed_password = generate_password_hash(form.password.data)
                 new_user = User(email=email, password=hashed_password)
-                # TODO: подумать над реализацией методов общения с БД. Кастонуть менеджера, либо через миксины
-                db.session.add(new_user)
-                db.session.commit()
+                new_user.ManagerConfig.manager(new_user).save()
                 return jsonify(email=email)
         return jsonify({'error': 'incorrect login or password'})
 

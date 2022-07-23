@@ -4,6 +4,7 @@ import uuid
 from flask_login import UserMixin
 from sqlalchemy import Column, String, Boolean, DateTime, Text
 
+from app.models.models_mixins import ManagerMixin
 from app.core.db import db
 
 __all__ = (
@@ -11,7 +12,7 @@ __all__ = (
 )
 
 
-class User(db.Model, UserMixin):
+class User(db.Model, UserMixin, ManagerMixin):
     __tablename__ = 'user'
 
     # TODO: PG id надо будет переписать
