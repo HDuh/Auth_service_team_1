@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+__all__ = (
+    'Config',
+)
+
 
 class Config:
     DB: str = os.getenv('DB', 'postgresql')

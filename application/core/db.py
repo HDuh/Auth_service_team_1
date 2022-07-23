@@ -2,6 +2,11 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+__all__ = (
+    'db',
+    'init_db',
+)
+
 db = SQLAlchemy()
 
 

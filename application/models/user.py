@@ -3,16 +3,14 @@ import uuid
 
 from flask_login import UserMixin
 from sqlalchemy import Column, String, Boolean, DateTime, Text
-
-from app.models.models_mixins import ManagerMixin
-from app.core.db import db
+from application.core import db
 
 __all__ = (
     'User',
 )
 
 
-class User(db.Model, UserMixin, ManagerMixin):
+class User(db.Model, UserMixin):
     __tablename__ = 'user'
 
     # TODO: PG id надо будет переписать
@@ -23,10 +21,8 @@ class User(db.Model, UserMixin, ManagerMixin):
     last_name = Column(String(150))
     is_active = Column(Boolean(True))
     data_joined = Column(DateTime, default=datetime.datetime.utcnow)
-
-    def __init__(self, email, password):
-        self.email = email
-        self.password = password
+    profile = db.relationship('Profile', backref='user', lazy='dynamic')
+    auth_history = db.relationship('AuthHistory', backref='user', lazy='dynamic')
 
     def __repr__(self):
         return f'<User {self.email}>'

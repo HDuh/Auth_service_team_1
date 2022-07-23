@@ -3,7 +3,7 @@ import uuid
 from flask_login import UserMixin
 from sqlalchemy import Column, ForeignKey, Text
 
-from app.core.db import db
+from application.core.db import db
 
 
 __all__ = (

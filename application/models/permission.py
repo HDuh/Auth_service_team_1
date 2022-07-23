@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy import Column, String
 
-from app.core.db import db
+from application.core.db import db
 
 __all__ = (
     'Permission',
