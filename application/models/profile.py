@@ -1,30 +1,22 @@
-import enum
-import uuid
-
-from sqlalchemy import Column, Integer, Enum, ForeignKey, String, DateTime, Text, func
-
-from application.core import db
+from application.core.database import db
+from application.models.models_enums import Genders
 
 __all__ = (
     'Profile',
 )
 
 
-class Genders(enum.Enum):
-    login = 'login'
-    logout = 'logout'
-    change_password = 'change_password'
-
-
 class Profile(db.Model):
     __tablename__ = 'profile'
 
     # TODO: PG id надо будет переписать
-    id = Column(Text(length=30), primary_key=True, default=lambda: str(uuid.uuid4()), unique=True, nullable=False)
-    user_id = Column(Text(length=30), ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    age = Column(Integer)
-    gender = Column(Enum(Genders))
-    phone = Column(String(80))
-    city = Column(String(150))
-    country = Column(String(150))
-    modified_at = Column(DateTime(timezone=True), onupdate=func.now())
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), unique=True, nullable=False)
+    first_name = db.Column(db.String(150))
+    last_name = db.Column(db.String(150))
+    age = db.Column(db.Integer)
+    gender = db.Column(db.Enum(Genders))
+    phone = db.Column(db.String(80))
+    city = db.Column(db.String(150))
+    country = db.Column(db.String(150))
+    modified_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())

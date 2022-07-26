@@ -9,7 +9,4 @@ def main_page():
     return render_template('main_page.html')
 
 
-@main.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html', name=current_user.email)
+

@@ -6,7 +6,7 @@ __all__ = (
 
 
 class ActionsEnum(Enum):
-    signup = 'signup'
-    login = 'login'
-    logout = 'logout'
-    change_password = 'change_password'
+    SIGNUP = 'signup'
+    LOGIN = 'login'
+    LOGOUT = 'logout'
+    CHANGE_PASSWORD = 'change_password'
