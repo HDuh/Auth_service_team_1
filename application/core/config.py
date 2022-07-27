@@ -18,7 +18,7 @@ class Config:
     DB_NAME: str = os.getenv('DB_NAME')
     SQLALCHEMY_DATABASE_URI: str = f'{DB}+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
     # SQLALCHEMY_DATABASE_URI: str = f"sqlite:///{DB_NAME}"
-    # SECRET_KEY: str = os.getenv('SECRET_KEY')
+    SECRET_KEY: str = os.getenv('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     FLASK_HOST: str = os.getenv('FLASK_HOST', '0.0.0.0')

@@ -5,9 +5,11 @@ from application.core import Config
 
 app = Flask(__name__)
 api = Api(app)
+app.config.from_object(Config)
 
-app.config['SQLALCHEMY_DATABASE_URI']: str = Config.SQLALCHEMY_DATABASE_URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']: bool = False
+
+# app.config['SQLALCHEMY_DATABASE_URI']: str = Config.SQLALCHEMY_DATABASE_URI
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS']: bool = False
 
 
 def init_api():
