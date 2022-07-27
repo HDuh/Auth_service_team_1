@@ -85,6 +85,7 @@ class Logout(Resource):
 
 class Refresh(Resource):
     """Получение новой пары токенов в обмен на refresh"""
+
     @jwt_required(refresh=True)
     def post(self):
         jti = get_jwt()['jti']

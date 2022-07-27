@@ -14,3 +14,4 @@ build/
 *.egg-info/
 /.env
 /application/test_database.db
+.idea
