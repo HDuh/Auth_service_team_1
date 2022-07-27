@@ -1,8 +1,4 @@
-from flask_jwt_extended import JWTManager
-
-from application.main import app
-
-jwt = JWTManager(app)
+from application.main import jwt
 
 block_list = set()
 

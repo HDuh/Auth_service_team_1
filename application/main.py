@@ -1,13 +1,16 @@
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 
 from application.core import Config
 
 app = Flask(__name__)
+app.config.from_object(Config)
+
 api = Api(app)
 db = SQLAlchemy(app)
-app.config.from_object(Config)
+jwt = JWTManager(app)
 
 
 def on_startup():

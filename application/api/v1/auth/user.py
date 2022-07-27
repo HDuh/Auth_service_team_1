@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from uuid import UUID
 
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -11,7 +12,7 @@ class UserProfile(Resource):
     @jwt_required(fresh=True)
     def get(self, user_id):
         user = User.query.filter_by(id=user_id).first()
-        if user and user.id == int(get_jwt_identity()):
+        if user and user.id == UUID(get_jwt_identity()):
             return jsonify(
                 {
                     'profile_id': user.profile.id,
@@ -24,19 +25,15 @@ class UserProfile(Resource):
                 },
                 HTTPStatus.OK,
             )
-        return jsonify(
-            {
-                'message': f'User id {user_id} not found'
-            },
-            HTTPStatus.NOT_FOUND,
-        )
+
+        return jsonify({'message': f'User id {user_id} not found'}, HTTPStatus.NOT_FOUND, )
 
 
 class UserAuthHistory(Resource):
     @jwt_required(fresh=True)
     def get(self, user_id):
         user = User.query.filter_by(id=user_id).first()
-        if user and user.id == int(get_jwt_identity()):
+        if user and user.id == UUID(get_jwt_identity()):
             return jsonify(
                 [
                     {

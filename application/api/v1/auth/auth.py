@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from uuid import UUID
 
 from flask import jsonify, request
 from flask_jwt_extended import (
@@ -7,14 +8,13 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
     get_jwt,
-    verify_jwt_in_request,
 )
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.main import db
 from application.core.jwt_manager import block_list
 from application.forms import LoginForm, SignUpForm
+from application.main import db
 from application.models import User, AuthHistory, Profile
 from application.models.models_enums import ActionsEnum
 
@@ -31,7 +31,7 @@ class Login(Resource):
                 access_token = create_access_token(identity=str(user.id), fresh=True)
                 refresh_token = create_refresh_token(identity=str(user.id))
 
-                history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN.value)
+                history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
                 db.session.add(history)
                 db.session.commit()
 
@@ -53,7 +53,7 @@ class SignUp(Resource):
 
             new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
             profile = Profile(user=new_user)
-            history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP.value)
+            history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
 
             db.session.add_all([new_user, profile, history])
             db.session.commit()
@@ -71,16 +71,11 @@ class Logout(Resource):
 
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
-        history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGOUT.value)
+        history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGOUT)
         db.session.add(history),
         db.session.commit()
 
-        return jsonify(
-            {
-                'message': 'Successfully logged out'
-            },
-            HTTPStatus.OK,
-        )
+        return jsonify({'message': 'Successfully logged out'}, HTTPStatus.OK, )
 
 
 class Refresh(Resource):
@@ -91,16 +86,10 @@ class Refresh(Resource):
         jti = get_jwt()['jti']
         block_list.add(jti)
 
-        identify = int(get_jwt_identity())
+        identify = get_jwt_identity()
         access_token = create_access_token(identity=identify, fresh=True)
         refresh_token = create_refresh_token(identity=identify)
-        return jsonify(
-            {
-                'access_token': access_token,
-                'refresh_token': refresh_token
-            },
-            HTTPStatus.OK,
-        )
+        return jsonify({'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK, )
 
 
 class ChangeUserPassword:
@@ -108,5 +97,5 @@ class ChangeUserPassword:
     def post(self):
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
-        if user and user.id == int(get_jwt_identity()):
+        if user and user.id == UUID(get_jwt_identity()):
             ...
