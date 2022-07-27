@@ -1,15 +1,19 @@
 from flask import Flask
 from flask_restful import Api
+from flask_sqlalchemy import SQLAlchemy
 
 from application.core import Config
 
 app = Flask(__name__)
 api = Api(app)
+db = SQLAlchemy(app)
 app.config.from_object(Config)
 
 
-# app.config['SQLALCHEMY_DATABASE_URI']: str = Config.SQLALCHEMY_DATABASE_URI
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS']: bool = False
+def on_startup():
+    init_api()
+    db.init_app(app)
+    db.create_all()
 
 
 def init_api():
@@ -20,10 +24,5 @@ def init_api():
 
 
 if __name__ == '__main__':
-    init_api()
-
-    from application.core.database import init_db
-
-    init_db()
-
+    on_startup()
     app.run(debug=True, host='0.0.0.0', port=5001)

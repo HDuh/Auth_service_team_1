@@ -12,7 +12,7 @@ from flask_jwt_extended import (
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.core.database import db
+from application.main import db
 from application.core.jwt_manager import block_list
 from application.forms import LoginForm, SignUpForm
 from application.models import User, AuthHistory, Profile

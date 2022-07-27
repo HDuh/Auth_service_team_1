@@ -1,6 +1,6 @@
 from sqlalchemy.dialects.postgresql import UUID
 
-from application.core.database import db
+from application.main import db
 
 __all__ = (
     'user_permission_table',
