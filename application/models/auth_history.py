@@ -15,7 +15,7 @@ class AuthHistory(db.Model):
     __tablename__ = 'auth_history'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     user_agent = db.Column(db.String(150))
     action = db.Column(db.Enum(ActionsEnum))
     action_time = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
