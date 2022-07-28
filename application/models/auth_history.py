@@ -3,7 +3,7 @@ import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
 
-from application.main import db
+from application.extensions import db
 from application.models.models_enums import ActionsEnum
 
 __all__ = (

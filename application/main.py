@@ -1,4 +1,4 @@
-from extensions import app, db
+from application.extensions import app, db
 
 
 def init_api():

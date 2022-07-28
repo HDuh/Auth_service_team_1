@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
 
-from application.main import db
+from application.extensions import db
 from .transitional_models import role_permission_table
 
 __all__ = (
