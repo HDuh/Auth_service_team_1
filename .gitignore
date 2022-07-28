@@ -13,4 +13,5 @@ dist/
 build/
 *.egg-info/
 /.env
-/app/test_database.db
+/application/test_database.db
+.idea
