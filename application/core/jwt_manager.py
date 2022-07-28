@@ -1,4 +1,4 @@
-from application.main import jwt
+from application.extensions import jwt
 
 block_list = set()
 
