@@ -75,6 +75,7 @@ class Logout(Resource):
         jwt_info = get_jwt()
         jwt_redis_blocklist.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
+
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
         history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGOUT)
