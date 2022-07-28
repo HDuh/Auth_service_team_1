@@ -10,3 +10,4 @@ class ActionsEnum(Enum):
     LOGIN = 'login'
     LOGOUT = 'logout'
     CHANGE_PASSWORD = 'change_password'
+    CHANGE_LOGIN = 'change_login'
