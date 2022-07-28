@@ -15,3 +15,4 @@ build/
 /.env
 /application/test_database.db
 .idea
+redis
