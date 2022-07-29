@@ -2,7 +2,6 @@ from flask import Blueprint
 from flask_restful import Api
 
 from .auth import Login, SignUp, Logout, Refresh, ChangeLoginPassword
-
 from .user import UserProfile, UserAuthHistory
 
 bp_auth = Blueprint('auth', __name__)

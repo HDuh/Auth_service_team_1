@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField
-from wtforms.validators import Email, DataRequired, EqualTo, InputRequired, Optional, optional, ValidationError
+from wtforms.validators import Email, DataRequired, EqualTo, optional, ValidationError
 
 __all__ = (
     'SignUpForm',
@@ -29,8 +29,8 @@ class ChangeDataForm(FlaskForm):
 
     email = EmailField('Email', validators=[optional(), Email()])
     old_password = PasswordField('Old_password', validators=[DataRequired()])
-    new_password = PasswordField('New_password', validators=[])
-    new_password2 = PasswordField('Repeat_new_password', validators=[EqualTo('new_password'), ])
+    new_password = PasswordField('New_password')
+    new_password2 = PasswordField('Repeat_new_password', validators=[EqualTo('new_password')])
 
     def validate_passwords(self, new_password):
         if new_password == self.old_password:
