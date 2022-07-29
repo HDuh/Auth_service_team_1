@@ -6,10 +6,10 @@ from flask_sqlalchemy import SQLAlchemy
 from application.core import Config
 
 app = Flask(__name__)
+app.config.from_object(Config)
 db = SQLAlchemy(app)
 api = Api(app)
 jwt = JWTManager(app)
 
-app.config.from_object(Config)
 
 db.init_app(app)

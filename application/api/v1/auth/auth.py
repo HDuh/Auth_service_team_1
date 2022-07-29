@@ -75,7 +75,6 @@ class Logout(Resource):
         jwt_info = get_jwt()
         jwt_redis_blocklist.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
-
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
         history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGOUT)
@@ -96,6 +95,7 @@ class Refresh(Resource):
         identify = get_jwt_identity()
         access_token = create_access_token(identity=identify, fresh=True)
         refresh_token = create_refresh_token(identity=identify)
+
         return jsonify({'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK, )
 
 
@@ -125,5 +125,7 @@ class ChangeLoginPassword(Resource):
 
                 else:
                     return change_login_and_password(user, form)
+
             return jsonify({'error': 'Incorrect data'}, HTTPStatus.BAD_REQUEST)
-        return jsonify({'error': 'User not found in database'}, HTTPStatus.NOT_FOUND)
+
+        return jsonify({'error': 'User not found in database'}, HTTPStatus.OK)
