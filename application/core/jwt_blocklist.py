@@ -4,7 +4,7 @@ import redis
 
 from application.extensions import jwt
 
-jwt_redis_blocklist = redis.StrictRedis(
+jwt_redis_blocklist = redis.Redis(
     host=os.getenv('REDIS_HOST'),
     port=int(os.getenv('REDIS_PORT')),
     db=0,
