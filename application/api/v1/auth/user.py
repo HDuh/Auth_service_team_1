@@ -4,11 +4,11 @@ from uuid import UUID
 from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
+from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.forms.change_data_form import ChangeDataForm
+from application.forms.auth_forms import ChangeDataForm
 from application.main import db
 from application.models import User
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class UserProfile(Resource):
