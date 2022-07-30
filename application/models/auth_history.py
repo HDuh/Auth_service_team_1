@@ -19,3 +19,6 @@ class AuthHistory(db.Model):
     user_agent = db.Column(db.String(150))
     action = db.Column(db.Enum(ActionsEnum))
     action_time = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
+
+    def __repr__(self):
+        return f"ID: {self.id}, User ID: {self.user_id}, Action: {self.action}"

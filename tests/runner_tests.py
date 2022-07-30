@@ -17,6 +17,6 @@ if __name__ == "__main__":
     else:
         status = "FAIL"
 
-    print(f'All tests status: {status}')
     print(f'\nErrors: {len(res.errors)}'
           f'\nFailed Tests: {len(res.failures)}')
+    print(f'Tests status: {status}')

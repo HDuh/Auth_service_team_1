@@ -31,3 +31,4 @@ typing_extensions==4.3.0
 Werkzeug==2.1.2
 wrapt==1.14.1
 WTForms==3.0.1
+flask_unittest==0.1.3

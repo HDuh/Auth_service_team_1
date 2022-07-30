@@ -3,10 +3,7 @@ from uuid import UUID
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
-from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.forms.auth_forms import ChangeDataForm
-from application.main import db
 from application.models import User
 
 
@@ -36,55 +33,3 @@ class UserAuthHistory(Resource):
                      'action_time': data.action_time,
                      'action': data.action.value} for data in user.auth_history.all()
                     ], HTTPStatus.OK
-
-
-class ChangeLoginOrPassword:
-    @jwt_required(fresh=True)
-    def post(self):
-        identify = get_jwt_identity()
-        user = User.query.filter_by(id=identify).first()
-        if user:
-            form = ChangeDataForm()
-            if form.validate_on_submit():
-                if form.email and not form.new_password:
-                    return change_email(user, form)
-                elif not form.email and form.new_password:
-                    return change_password(user, form)
-                else:
-                    return change_all_auth_data(user, form)
-
-
-def change_email(user, form):
-    if not User.query.filter_by(email=form.email).first():
-        user.email = form.email
-        db.session.merge(user)
-        db.session.commit()
-        return {"message": "Email change successfully"}, HTTPStatus.OK
-    else:
-        return {"error": f"Email {form.email} already exist"}, HTTPStatus.BAD_REQUEST
-
-
-def change_password(user, form):
-    if form.new_password != form.old_password and check_password_hash(user.password, form.new_password):
-        user.password = generate_password_hash(form.new_password)
-        db.session.merge(user)
-        db.session.commit()
-        return {"message": "Password change successfully"}, HTTPStatus.OK
-
-    else:
-        return {'error': "Incorrect new password"}, HTTPStatus.BAD_REQUEST
-
-
-def change_all_auth_data(user, form):
-    if (
-            not User.query.filter_by(email=form.email).first()
-            and form.new_password != form.old_password
-            and check_password_hash(user.password, form.new_password)
-    ):
-        user.email = form.email.data
-        user.password = generate_password_hash(form.new_password)
-        db.session.merge(user)
-        db.session.commit()
-        return {"message": "Email and password change successfully"}, HTTPStatus.OK
-
-    return {"error": "Incorrect email or password"}, HTTPStatus.BAD_REQUEST
