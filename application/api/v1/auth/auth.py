@@ -35,9 +35,9 @@ class Login(Resource):
                 db.session.add(history)
                 db.session.commit()
 
-                return jsonify(access_token=access_token, refresh_token=refresh_token)
+                return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
-        return jsonify({'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST, )
+        return {'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST
 
 
 class SignUp(Resource):
@@ -49,7 +49,7 @@ class SignUp(Resource):
             user = User.query.filter_by(email=form.email.data).first()
 
             if user:
-                return jsonify({'message': f'User {form.email.data} already exist'}, HTTPStatus.OK, )
+                return {'message': f'User {form.email.data} already exist'}, HTTPStatus.OK
 
             new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
             profile = Profile(user=new_user)
@@ -58,9 +58,9 @@ class SignUp(Resource):
             db.session.add_all([new_user, profile, history])
             db.session.commit()
 
-            return jsonify({'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK, )
+            return {'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK
 
-        return jsonify({'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST, )
+        return {"message": "Incorrect login or password"}, HTTPStatus.BAD_REQUEST
 
 
 class Logout(Resource):
@@ -75,7 +75,7 @@ class Logout(Resource):
         db.session.add(history),
         db.session.commit()
 
-        return jsonify({'message': 'Successfully logged out'}, HTTPStatus.OK, )
+        return {'message': 'Successfully logged out'}, HTTPStatus.OK
 
 
 class Refresh(Resource):
@@ -89,7 +89,8 @@ class Refresh(Resource):
         identify = get_jwt_identity()
         access_token = create_access_token(identity=identify, fresh=True)
         refresh_token = create_refresh_token(identity=identify)
-        return jsonify({'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK, )
+        
+        return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
 
 class ChangeUserPassword:

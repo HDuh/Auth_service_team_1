@@ -20,4 +20,5 @@ class Role(db.Model):
         secondary=role_permission_table,
         backref='permission',
         lazy='dynamic',
+        overlaps="role,role",
     )
