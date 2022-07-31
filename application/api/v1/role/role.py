@@ -29,20 +29,26 @@ class Roles(Resource):
     @jwt_required(fresh=True)
     def patch(self):
         form = UpdateRoleForm()
-        old_role = Role.query.filter(Role.role_name == form.role_name.data).first()
-        new_role = Role.query.filter(Role.role_name == form.new_role_name.data).first()
+        roles_query = Role.query.filter(
+            (Role.role_name == form.role_name.data) |
+            (Role.role_name == form.new_role_name.data)
+        )
+        roles = [i.role_name for i in roles_query.all()]
 
-        if not old_role:
+        old_name = form.role_name.data
+        new_name = form.new_role_name.data
+
+        if old_name not in roles:
             return {'message': f'Role not found'}, HTTPStatus.BAD_REQUEST
 
-        elif new_role:
+        elif new_name in roles:
             return {'message': f'Role already exist'}, HTTPStatus.BAD_REQUEST
 
-        elif new_role == old_role:
+        elif new_name == old_name:
             return {'message': f'Role name should be different'}, HTTPStatus.BAD_REQUEST
 
         else:
-            old_role.role_name = form.new_role_name.data
+            roles_query.first().role_name = form.new_role_name.data
             db.session.commit()
             return {'message': 'Role updated'}, HTTPStatus.OK
 

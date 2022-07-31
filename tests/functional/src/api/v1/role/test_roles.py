@@ -58,7 +58,6 @@ class TestRoles(TestBase):
 
     def test_update_not_existed(self, client: FlaskClient):
         role = RoleActions(client)
-        role.create_role(TEST_ROLE_NAME)
 
         response = role.update_role(role_name='incorrect_role',
                                     new_role_name=TEST_ROLE_NAME)
