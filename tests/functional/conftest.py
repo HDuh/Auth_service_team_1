@@ -40,16 +40,16 @@ class AuthActions(object):
         self.refresh_token = None
 
     def signup(self, data=TEST_USER_DATA):
-        self._client.post("/signup", data=data)
+        self._client.post('/signup', data=data)
 
     def login(self, data=TEST_LOGIN_DATA):
         self.signup()
-        response = self._client.post("/login", data=data)
+        response = self._client.post('/login', data=data)
 
         assert response.status_code == HTTPStatus.OK
 
-        self.access_token = response.json.get("access_token")
-        self.refresh_token = response.json.get("refresh_token")
+        self.access_token = response.json.get('access_token')
+        self.refresh_token = response.json.get('refresh_token')
 
         return
 
@@ -66,10 +66,10 @@ class RoleActions(object):
         auth = AuthActions(self._client)
         auth.login()
         # request params
-        headers = {"Authorization": f"Bearer {auth.access_token}"}
-        data = {"role_name": role_name}
+        headers = {'Authorization': f'Bearer {auth.access_token}'}
+        data = {'role_name': role_name}
 
-        return self._client.post("/role", data=data, headers=headers)
+        return self._client.post('/role', data=data, headers=headers)
 
     def update_role(self, new_role_name, role_name=TEST_ROLE_NAME):
         # user registration
@@ -77,11 +77,11 @@ class RoleActions(object):
         auth.login()
 
         # request params
-        headers = {"Authorization": f"Bearer {auth.access_token}"}
-        data = {"role_name": role_name,
-                "new_role_name": new_role_name}
+        headers = {'Authorization': f'Bearer {auth.access_token}'}
+        data = {'role_name': role_name,
+                'new_role_name': new_role_name}
 
-        return self._client.patch("/role", data=data, headers=headers)
+        return self._client.patch('/role', data=data, headers=headers)
 
     def delete_role(self, role_name):
         # user registration
@@ -89,7 +89,7 @@ class RoleActions(object):
         auth.login()
 
         # request params
-        headers = {"Authorization": f"Bearer {auth.access_token}"}
-        data = {"role_name": role_name}
+        headers = {'Authorization': f'Bearer {auth.access_token}'}
+        data = {'role_name': role_name}
 
-        return self._client.delete("/role", data=data, headers=headers)
+        return self._client.delete('/role', data=data, headers=headers)

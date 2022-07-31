@@ -9,13 +9,13 @@ from tests.functional.constants import TEST_MAIL, TEST_USER_DATA
 
 class TestSignup(TestBase):
     def test_signup_user(self, client: FlaskClient):
-        response = client.post("/signup", data=TEST_USER_DATA)
+        response = client.post('/signup', data=TEST_USER_DATA)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        self.assertEqual(f"User {TEST_MAIL} successfully registered", response.json.get('message'))
+        self.assertEqual(f'User {TEST_MAIL} successfully registered', response.json.get('message'))
 
     def test_signup_user_in_db(self, client: FlaskClient) -> None:
-        client.post("/signup", data=TEST_USER_DATA)
+        client.post('/signup', data=TEST_USER_DATA)
 
         user = User.query.filter_by(email=TEST_MAIL).first()
         user_profile = Profile.query.filter_by(user_id=user.id).first()
@@ -27,16 +27,14 @@ class TestSignup(TestBase):
         self.assertNotEqual(auth_history, None)
 
     def test_signup_already_exist(self, client: FlaskClient) -> None:
-        # registration user
-        client.post("/signup", data=TEST_USER_DATA)
+        client.post('/signup', data=TEST_USER_DATA)
 
-        # registration already existed user
-        response = client.post("/signup", data=TEST_USER_DATA)
+        response = client.post('/signup', data=TEST_USER_DATA)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        self.assertEqual(f"User {TEST_MAIL} already exist", response.json.get('message'))
+        self.assertEqual(f'User {TEST_MAIL} already exist', response.json.get('message'))
 
     def test_signup_incorrect_data(self, client: FlaskClient) -> None:
-        response = client.post("/signup", data={})
+        response = client.post('/signup', data={})
         self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
-        self.assertEqual("Incorrect params", response.json.get('message'))
+        self.assertEqual('Incorrect params', response.json.get('message'))

@@ -14,9 +14,9 @@ class TestUser(TestBase):
         auth.login()
         user = User.query.filter_by(email=TEST_MAIL).first()
         user_id = user.get_id()
-        headers = {"Authorization": f"Bearer {auth.access_token}"}
+        headers = {'Authorization': f'Bearer {auth.access_token}'}
 
-        response = client.get(f"/user/{user_id}", headers=headers)
+        response = client.get(f'/user/{user_id}', headers=headers)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
         self.assertEqual(user_id, response.json.get('user_id'))
@@ -25,21 +25,21 @@ class TestUser(TestBase):
         auth = AuthActions(client)
         auth.login()
         test_id = uuid.uuid4()
-        headers = {"Authorization": f"Bearer {auth.access_token}"}
+        headers = {'Authorization': f'Bearer {auth.access_token}'}
 
-        response = client.get(f"/user/{test_id}", headers=headers)
+        response = client.get(f'/user/{test_id}', headers=headers)
 
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        self.assertEqual(f"User id {test_id} not found", response.json.get('message'))
+        self.assertEqual(f'User id {test_id} not found', response.json.get('message'))
 
     def test_get_auth_history(self, client: FlaskClient) -> None:
         auth = AuthActions(client)
         auth.login()
         user = User.query.filter_by(email=TEST_MAIL).first()
         user_id = user.get_id()
-        headers = {"Authorization": f"Bearer {auth.access_token}"}
+        headers = {'Authorization': f'Bearer {auth.access_token}'}
 
-        response = client.get(f"/user/{user_id}/auth_history", headers=headers)
+        response = client.get(f'/user/{user_id}/auth_history', headers=headers)
 
         signup_info = response.json[0]
         login_info = response.json[1]
@@ -53,12 +53,9 @@ class TestUser(TestBase):
         auth = AuthActions(client)
         auth.login()
         test_id = uuid.uuid4()
-        headers = {"Authorization": f"Bearer {auth.access_token}"}
+        headers = {'Authorization': f'Bearer {auth.access_token}'}
 
-        response = client.get(f"/user/{test_id}/auth_history", headers=headers)
+        response = client.get(f'/user/{test_id}/auth_history', headers=headers)
 
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
-        self.assertEqual(f"User id {test_id} not found", response.json.get('message'))
-
-
-
+        self.assertEqual(f'User id {test_id} not found', response.json.get('message'))
