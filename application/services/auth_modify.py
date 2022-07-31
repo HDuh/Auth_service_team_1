@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-def change_login(user: User, form: ChangeDataForm) -> tuple:
+def change_login(user: User, form: ChangeDataForm):
     """Логика смены логина (email)"""
 
     if not User.query.filter_by(email=form.email.data).first():
@@ -30,7 +30,7 @@ def change_login(user: User, form: ChangeDataForm) -> tuple:
     return {'message': 'Login already exist'}, HTTPStatus.BAD_REQUEST
 
 
-def change_password(user: User, form: ChangeDataForm) -> tuple:
+def change_password(user: User, form: ChangeDataForm):
     """Логика смены пароля"""
     if not check_password_hash(user.password, form.new_password.data):
         user.password = generate_password_hash(form.new_password.data)
@@ -44,7 +44,7 @@ def change_password(user: User, form: ChangeDataForm) -> tuple:
     return {'message': 'Incorrect data'}, HTTPStatus.BAD_REQUEST
 
 
-def change_login_and_password(user: User, form: ChangeDataForm) -> tuple:
+def change_login_and_password(user: User, form: ChangeDataForm):
     """Логика смены логина (email) и пароля"""
 
     if User.query.filter_by(email=form.email.data).first():
