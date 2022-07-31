@@ -63,5 +63,50 @@ class TestChangeLoginPassword(TestBase):
 
         self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
         self.assertEqual(
-            'Incorrect data', response.json.get("message")
+            'Incorrect params', response.json.get("message")
         )
+
+    def test_change_login_already_exist(self, client: FlaskClient):
+        # user registration
+        auth = AuthActions(client)
+        auth.login()
+        headers = {"Authorization": f"Bearer {auth.access_token}"}
+        data = {"email": TEST_USER_DATA.get("email"),
+                "old_password": TEST_USER_DATA.get("password")}
+
+        response = client.post("/change_auth_data", data=data, headers=headers)
+
+        self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
+        self.assertEqual(
+            'Login already exist', response.json.get("message")
+        )
+
+    def test_change_password_incorrect_old_password(self, client: FlaskClient):
+        # user registration
+        auth = AuthActions(client)
+        auth.login()
+        new_pass = "new_pass"
+        headers = {"Authorization": f"Bearer {auth.access_token}"}
+        data = {"old_password": "incorrect_pass",
+                "new_password": new_pass,
+                "new_password2": new_pass}
+
+        response = client.post("/change_auth_data", data=data, headers=headers)
+
+        self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
+        self.assertEqual('Incorrect old password', response.json.get("message"))
+
+    def test_change_password_incorrect_password2(self, client: FlaskClient):
+        # user registration
+        auth = AuthActions(client)
+        auth.login()
+        new_pass = "new_pass"
+        headers = {"Authorization": f"Bearer {auth.access_token}"}
+        data = {"old_password": TEST_USER_DATA.get("password"),
+                "new_password": new_pass,
+                "new_password2": 'incorrect pass'}
+
+        response = client.post("/change_auth_data", data=data, headers=headers)
+
+        self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
+        self.assertEqual('Incorrect params', response.json.get("message"))

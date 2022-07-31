@@ -1,10 +1,23 @@
-TEST_MAIL = 'tester@test.com'
-TEST_MAIL_2 = 'new_tester@test.com'
-TEST_USER_DATA = {"email": TEST_MAIL, "password": "123", "password2": "123"}
-TEST_LOGIN_DATA = {"email": TEST_MAIL, "password": TEST_USER_DATA.get("password")}
-TEST_LOGIN_DATA_2 = {"email": TEST_MAIL, "password": TEST_USER_DATA.get("password")}
+from dataclasses import dataclass, asdict
 
-TEST_CHANGE_DATA = {"email": TEST_MAIL,
-                    "old_password": TEST_USER_DATA.get("password"),
-                    "new_password": "1234",
-                    "new_password2": "1234"}
+TEST_MAIL = "tester@test.com"
+TEST_ROLE_NAME = "test_role"
+
+
+@dataclass
+class TestLoginUser:
+    email: str = TEST_MAIL
+    password: str = "123"
+    password2: str = "123"
+
+
+@dataclass
+class TestChangeDataUser:
+    email: str = TEST_MAIL
+    old_password: str = TestLoginUser.password
+    new_password: str = "1234"
+    new_password2: str = "1234"
+
+
+TEST_LOGIN_DATA = asdict(TestLoginUser())
+TEST_USER_DATA = asdict(TestLoginUser())

@@ -39,4 +39,4 @@ class TestSignup(TestBase):
     def test_signup_incorrect_data(self, client: FlaskClient) -> None:
         response = client.post("/signup", data={})
         self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
-        self.assertEqual("Incorrect login or password", response.json.get('message'))
+        self.assertEqual("Incorrect params", response.json.get('message'))

@@ -17,7 +17,7 @@ class Roles(Resource):
         role = Role.query.filter_by(role_name=form.role_name.data).first()
 
         if role:
-            return {'message': f'User {form.role_name.data} already exist'}, HTTPStatus.BAD_REQUEST
+            return {'message': f'Role {form.role_name.data} already exist'}, HTTPStatus.BAD_REQUEST
 
         new_role = Role(role_name=form.role_name.data)
         db.session.add(new_role)
@@ -29,17 +29,22 @@ class Roles(Resource):
     @jwt_required(fresh=True)
     def patch(self):
         form = UpdateRoleForm()
-        role = Role.query.filter(
-            (Role.role_name == form.role_name.data) |
-            (Role.role_name == form.new_role_name.data)
-        )
+        old_role = Role.query.filter(Role.role_name == form.role_name.data).first()
+        new_role = Role.query.filter(Role.role_name == form.new_role_name.data).first()
 
-        if len(role.all()) == 1 and form.role_name.data in [i.role_name for i in role.all()]:
-            role.first().role_name = form.new_role_name.data
+        if not old_role:
+            return {'message': f'Role not found'}, HTTPStatus.BAD_REQUEST
+
+        elif new_role:
+            return {'message': f'Role already exist'}, HTTPStatus.BAD_REQUEST
+
+        elif new_role == old_role:
+            return {'message': f'Role name should be different'}, HTTPStatus.BAD_REQUEST
+
+        else:
+            old_role.role_name = form.new_role_name.data
             db.session.commit()
             return {'message': 'Role updated'}, HTTPStatus.OK
-
-        return {'message': f'Role not found or already exist'}, HTTPStatus.BAD_REQUEST
 
     @validate_form(RoleForm)
     @jwt_required(fresh=True)
@@ -50,9 +55,9 @@ class Roles(Resource):
         if role.first():
             role.delete()
             db.session.commit()
-            return {'message': 'Role deleted'}, HTTPStatus.OK
+            return {'message': f'Role {form.role_name.data} deleted'}, HTTPStatus.OK
 
-        return {'message': 'Role not found'}, HTTPStatus.NOT_FOUND
+        return {'message': f'Role {form.role_name.data} not found'}, HTTPStatus.NOT_FOUND
 
 
 class RoleList(Resource):

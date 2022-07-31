@@ -1,6 +1,5 @@
 from http import HTTPStatus
 
-from application.utils.decorators import validate_form
 from flask import request
 from flask_jwt_extended import (
     create_access_token,
@@ -18,6 +17,7 @@ from application.forms import LoginForm, SignUpForm, ChangeDataForm
 from application.models import User, AuthHistory, Profile
 from application.models.models_enums import ActionsEnum
 from application.services import change_login, change_password, change_login_and_password, expired_time
+from application.utils.decorators import validate_form
 
 
 class Login(Resource):

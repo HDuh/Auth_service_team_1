@@ -22,4 +22,4 @@ class TestLogin(TestBase):
         response = client.post("/login", data={"email": "test", "password": 'test'})
 
         self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
-        self.assertEqual('Incorrect login or password', response.json.get("message"))
+        self.assertEqual('Incorrect params', response.json.get("message"))
