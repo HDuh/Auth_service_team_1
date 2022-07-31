@@ -33,3 +33,5 @@ class Config:
     # other
     SECRET_KEY: str = os.getenv('SECRET_KEY')
     WTF_CSRF_ENABLED = False
+    TEST_DATABASE_URI: str = f'{DB}+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/test'
+    

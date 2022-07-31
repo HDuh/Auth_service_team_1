@@ -3,7 +3,7 @@ from http import HTTPStatus
 import flask_unittest
 from flask.testing import FlaskClient
 
-from application.core import Config
+from .test_config import Config
 from application.main import app, db, init_api
 from tests.functional.constants import TEST_LOGIN_DATA, TEST_USER_DATA, TEST_ROLE_NAME
 from tests.functional.utils import clear_tables
