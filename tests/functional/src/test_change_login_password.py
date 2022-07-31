@@ -47,9 +47,21 @@ class TestChangeLoginPassword(TestBase):
                 "new_password2": new_pass}
 
         response = client.post("/change_auth_data", data=data, headers=headers)
-        print(response.json)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
         self.assertEqual(
             'Login and password change successfully', response.json.get("message")
+        )
+
+    def test_change_login_empty_data(self, client: FlaskClient):
+        # user registration
+        auth = AuthActions(client)
+        auth.login()
+        headers = {"Authorization": f"Bearer {auth.access_token}"}
+
+        response = client.post("/change_auth_data", data={}, headers=headers)
+
+        self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
+        self.assertEqual(
+            'Incorrect data', response.json.get("message")
         )

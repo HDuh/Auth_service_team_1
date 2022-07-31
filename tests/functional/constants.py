@@ -1,6 +1,8 @@
 TEST_MAIL = 'tester@test.com'
+TEST_MAIL_2 = 'new_tester@test.com'
 TEST_USER_DATA = {"email": TEST_MAIL, "password": "123", "password2": "123"}
 TEST_LOGIN_DATA = {"email": TEST_MAIL, "password": TEST_USER_DATA.get("password")}
+TEST_LOGIN_DATA_2 = {"email": TEST_MAIL, "password": TEST_USER_DATA.get("password")}
 
 TEST_CHANGE_DATA = {"email": TEST_MAIL,
                     "old_password": TEST_USER_DATA.get("password"),

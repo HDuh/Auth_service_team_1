@@ -126,6 +126,6 @@ class ChangeLoginPassword(Resource):
                 else:
                     return change_login_and_password(user, form)
 
-            return {'error': 'Incorrect data'}, HTTPStatus.BAD_REQUEST
+            return {'message': 'Incorrect data'}, HTTPStatus.BAD_REQUEST
 
-        return {'error': 'User not found in database'}, HTTPStatus.OK
+        return {'message': 'User not found in database'}, HTTPStatus.OK
