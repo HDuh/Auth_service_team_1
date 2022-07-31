@@ -14,7 +14,7 @@ class Permission(db.Model):
     __tablename__ = 'permission'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    permission_name = db.Column(db.String(148), nullable=False)
+    permission_name = db.Column(db.String(148), nullable=False, unique=True)
     role = db.relationship(
         'Role',
         secondary=role_permission_table,

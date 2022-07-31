@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 
-from application.extensions import db
+from application.extensions import db, get_access_roles, permissions
 from application.forms import RoleForm, UpdateRoleForm
 from application.models import Role
 from application.utils.decorators import validate_form
@@ -18,6 +18,10 @@ class Roles(Resource):
 
         if role:
             return {'message': f'Role {form.role_name.data} already exist'}, HTTPStatus.BAD_REQUEST
+
+        # if not all((err_permission := permission in permissions for permission in form.permissions.data)):
+        #     return {'message': f'Permission {err_permission} does not exist'}, HTTPStatus.BAD_REQUEST
+        # TODO: проверить и доделать
 
         new_role = Role(role_name=form.role_name.data)
         db.session.add(new_role)
@@ -67,8 +71,9 @@ class Roles(Resource):
 
 
 class RoleList(Resource):
-    def get(self) -> dict:
-        pass
+    @jwt_required(fresh=True)
+    def get(self):
+        return get_access_roles(db), HTTPStatus.OK
 
 
 class UserRole(Resource):

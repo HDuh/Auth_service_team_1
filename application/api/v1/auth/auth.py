@@ -110,16 +110,16 @@ class ChangeLoginPassword(Resource):
                     and check_password_hash(user.password, form.old_password.data)
                     and not form.new_password.data
             ):
-                return change_login(user, form)
+                return change_login(db, user, form)
 
             elif (
                     not form.email.data
                     and check_password_hash(user.password, form.old_password.data)
                     and all(itm for itm in (form.new_password.data, form.new_password2.data))
             ):
-                return change_password(user, form)
+                return change_password(db, user, form)
 
             else:
-                return change_login_and_password(user, form)
+                return change_login_and_password(db, user, form)
 
         return {'message': 'User not found in database'}, HTTPStatus.OK

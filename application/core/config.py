@@ -33,3 +33,4 @@ class Config:
     # other
     SECRET_KEY: str = os.getenv('SECRET_KEY')
     WTF_CSRF_ENABLED = False
+    BASE_PERMISSIONS = ['base_content', 'premium_content', 'change_roles', 'root']

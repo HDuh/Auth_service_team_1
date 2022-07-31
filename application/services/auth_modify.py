@@ -3,7 +3,6 @@ from http import HTTPStatus
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.extensions import db
 from application.forms.auth_forms import ChangeDataForm
 from application.models import User, AuthHistory
 from application.models.models_enums import ActionsEnum
@@ -15,7 +14,7 @@ __all__ = (
 )
 
 
-def change_login(user: User, form: ChangeDataForm):
+def change_login(db, user: User, form: ChangeDataForm):
     """Логика смены логина (email)"""
 
     if not User.query.filter_by(email=form.email.data).first():
@@ -30,7 +29,7 @@ def change_login(user: User, form: ChangeDataForm):
     return {'message': 'Login already exist'}, HTTPStatus.BAD_REQUEST
 
 
-def change_password(user: User, form: ChangeDataForm):
+def change_password(db, user: User, form: ChangeDataForm):
     """Логика смены пароля"""
     if not check_password_hash(user.password, form.new_password.data):
         user.password = generate_password_hash(form.new_password.data)
@@ -44,7 +43,7 @@ def change_password(user: User, form: ChangeDataForm):
     return {'message': 'Incorrect data'}, HTTPStatus.BAD_REQUEST
 
 
-def change_login_and_password(user: User, form: ChangeDataForm):
+def change_login_and_password(db, user: User, form: ChangeDataForm):
     """Логика смены логина (email) и пароля"""
 
     if User.query.filter_by(email=form.email.data).first():
