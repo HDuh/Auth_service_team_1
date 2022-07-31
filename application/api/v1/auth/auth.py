@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from application.utils.decorators import validate_form
 from flask import request
 from flask_jwt_extended import (
     create_access_token,
@@ -22,22 +23,21 @@ from application.services import change_login, change_password, change_login_and
 class Login(Resource):
     """Аутентификация пользователя"""
 
-    @staticmethod
-    def post():
+    @validate_form(LoginForm)
+    def post(self):
         form = LoginForm()
 
-        if form.validate_on_submit():
-            user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
 
-            if user and check_password_hash(user.password, form.password.data):
-                access_token = create_access_token(identity=str(user.id), fresh=True)
-                refresh_token = create_refresh_token(identity=str(user.id))
+        if user and check_password_hash(user.password, form.password.data):
+            access_token = create_access_token(identity=str(user.id), fresh=True)
+            refresh_token = create_refresh_token(identity=str(user.id))
 
-                history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
-                db.session.add(history)
-                db.session.commit()
+            history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+            db.session.add(history)
+            db.session.commit()
 
-                return {'access_token': access_token, 'refresh_token': refresh_token}
+            return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
         return {'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST
 
@@ -45,26 +45,22 @@ class Login(Resource):
 class SignUp(Resource):
     """Регистрация пользователя"""
 
-    @staticmethod
-    def post():
+    @validate_form(SignUpForm)
+    def post(self):
         form = SignUpForm()
+        user = User.query.filter_by(email=form.email.data).first()
 
-        if form.validate_on_submit():
-            user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            return {'message': f'User {form.email.data} already exist'}, HTTPStatus.OK
 
-            if user:
-                return {'message': f'User {form.email.data} already exist'}, HTTPStatus.OK
+        new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
+        profile = Profile(user=new_user)
+        history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
 
-            new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
-            profile = Profile(user=new_user)
-            history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
+        db.session.add_all([new_user, profile, history])
+        db.session.commit()
 
-            db.session.add_all([new_user, profile, history])
-            db.session.commit()
-
-            return {'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK
-
-        return {'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST
+        return {'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK
 
 
 class Logout(Resource):
@@ -102,30 +98,28 @@ class Refresh(Resource):
 class ChangeLoginPassword(Resource):
     """Смена логина (email) или пароля"""
 
+    @validate_form(ChangeDataForm)
     @jwt_required(fresh=True)
     def post(self):
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
         if user and str(user.id) == get_jwt_identity():
             form = ChangeDataForm()
-            if form.validate_on_submit():
-                if (
-                        form.email.data
-                        and check_password_hash(user.password, form.old_password.data)
-                        and not form.new_password.data
-                ):
-                    return change_login(user, form)
+            if (
+                    form.email.data
+                    and check_password_hash(user.password, form.old_password.data)
+                    and not form.new_password.data
+            ):
+                return change_login(user, form)
 
-                elif (
-                        not form.email.data
-                        and check_password_hash(user.password, form.old_password.data)
-                        and all(itm for itm in (form.new_password.data, form.new_password2.data))
-                ):
-                    return change_password(user, form)
+            elif (
+                    not form.email.data
+                    and check_password_hash(user.password, form.old_password.data)
+                    and all(itm for itm in (form.new_password.data, form.new_password2.data))
+            ):
+                return change_password(user, form)
 
-                else:
-                    return change_login_and_password(user, form)
-
-            return {'message': 'Incorrect data'}, HTTPStatus.BAD_REQUEST
+            else:
+                return change_login_and_password(user, form)
 
         return {'message': 'User not found in database'}, HTTPStatus.OK
