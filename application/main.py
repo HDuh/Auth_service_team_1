@@ -2,8 +2,8 @@ from application.extensions import app, db
 
 
 def init_api():
-    from api.v1.auth.routes import bp_auth
-    from api.v1.role.routes import bp_role
+    from application.api.v1.auth.routes import bp_auth
+    from application.api.v1.role.routes import bp_role
 
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_role)

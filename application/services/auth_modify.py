@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import jsonify, request
+from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from application.extensions import db
@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-def change_login(user: User, form: ChangeDataForm) -> jsonify:
+def change_login(user: User, form: ChangeDataForm):
     """Логика смены логина (email)"""
 
     if not User.query.filter_by(email=form.email.data).first():
@@ -25,14 +25,13 @@ def change_login(user: User, form: ChangeDataForm) -> jsonify:
         db.session.add(history)
         db.session.commit()
 
-        return jsonify({'message': 'Login change successfully'}, HTTPStatus.OK)
+        return {'message': 'Login change successfully'}, HTTPStatus.OK
 
-    return jsonify({'error': 'Login already exist'}, HTTPStatus.BAD_REQUEST)
+    return {'message': 'Login already exist'}, HTTPStatus.BAD_REQUEST
 
 
-def change_password(user: User, form: ChangeDataForm) -> jsonify:
+def change_password(user: User, form: ChangeDataForm):
     """Логика смены пароля"""
-
     if not check_password_hash(user.password, form.new_password.data):
         user.password = generate_password_hash(form.new_password.data)
         history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.CHANGE_PASSWORD)
@@ -40,15 +39,21 @@ def change_password(user: User, form: ChangeDataForm) -> jsonify:
         db.session.add(history)
         db.session.commit()
 
-        return jsonify({'message': 'Password change successfully'}, HTTPStatus.OK)
+        return {'message': 'Password change successfully'}, HTTPStatus.OK
 
-    return jsonify({'message': {'Incorrect data'}}, HTTPStatus.BAD_REQUEST)
+    return {'message': 'Incorrect data'}, HTTPStatus.BAD_REQUEST
 
 
-def change_login_and_password(user: User, form: ChangeDataForm) -> jsonify:
+def change_login_and_password(user: User, form: ChangeDataForm):
     """Логика смены логина (email) и пароля"""
 
-    if not User.query.filter_by(email=form.email.data).first():
+    if User.query.filter_by(email=form.email.data).first():
+        return {'message': 'Login already exist'}, HTTPStatus.BAD_REQUEST
+
+    elif not check_password_hash(user.password, form.old_password.data):
+        return {'message': 'Incorrect old password'}, HTTPStatus.BAD_REQUEST
+
+    else:
         user.email = form.email.data
         user.password = generate_password_hash(form.new_password.data)
         history = [
@@ -59,6 +64,6 @@ def change_login_and_password(user: User, form: ChangeDataForm) -> jsonify:
         db.session.add_all(history)
         db.session.commit()
 
-        return jsonify({'message': 'Login and password change successfully'}, HTTPStatus.OK)
+        return {'message': 'Login and password change successfully'}, HTTPStatus.OK
 
-    return jsonify({'error': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST)
+
