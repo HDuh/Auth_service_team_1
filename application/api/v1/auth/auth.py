@@ -37,7 +37,7 @@ class Login(Resource):
             db.session.add(history)
             db.session.commit()
 
-            return jsonify(access_token=access_token, refresh_token=refresh_token)
+            return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
         return {'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST
 
@@ -122,4 +122,4 @@ class ChangeLoginPassword(Resource):
             else:
                 return change_login_and_password(user, form)
 
-        return {'error': 'User not found in database'}, HTTPStatus.OK
+        return {'message': 'User not found in database'}, HTTPStatus.OK
