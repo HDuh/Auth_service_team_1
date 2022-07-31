@@ -17,54 +17,50 @@ from application.forms import LoginForm, SignUpForm, ChangeDataForm
 from application.models import User, AuthHistory, Profile
 from application.models.models_enums import ActionsEnum
 from application.services import change_login, change_password, change_login_and_password, expired_time
+from application.utils.decorators import validate_form
 
 
 class Login(Resource):
     """Аутентификация пользователя"""
 
-    @staticmethod
-    def post():
+    @validate_form(LoginForm)
+    def post(self):
         form = LoginForm()
 
-        if form.validate_on_submit():
-            user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
 
-            if user and check_password_hash(user.password, form.password.data):
-                access_token = create_access_token(identity=str(user.id), fresh=True)
-                refresh_token = create_refresh_token(identity=str(user.id))
+        if user and check_password_hash(user.password, form.password.data):
+            access_token = create_access_token(identity=str(user.id), fresh=True)
+            refresh_token = create_refresh_token(identity=str(user.id))
 
-                history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
-                db.session.add(history)
-                db.session.commit()
+            history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+            db.session.add(history)
+            db.session.commit()
 
-                return jsonify(access_token=access_token, refresh_token=refresh_token)
+            return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
-        return jsonify({'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST, )
+        return {'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST
 
 
 class SignUp(Resource):
     """Регистрация пользователя"""
 
-    @staticmethod
-    def post():
+    @validate_form(SignUpForm)
+    def post(self):
         form = SignUpForm()
+        user = User.query.filter_by(email=form.email.data).first()
 
-        if form.validate_on_submit():
-            user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            return {'message': f'User {form.email.data} already exist'}, HTTPStatus.OK
 
-            if user:
-                return jsonify({'message': f'User {form.email.data} already exist'}, HTTPStatus.OK, )
+        new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
+        profile = Profile(user=new_user)
+        history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
 
-            new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
-            profile = Profile(user=new_user)
-            history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
+        db.session.add_all([new_user, profile, history])
+        db.session.commit()
 
-            db.session.add_all([new_user, profile, history])
-            db.session.commit()
-
-            return jsonify({'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK, )
-
-        return jsonify({'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST, )
+        return {'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK
 
 
 class Logout(Resource):
@@ -81,7 +77,7 @@ class Logout(Resource):
         db.session.add(history),
         db.session.commit()
 
-        return jsonify({'message': 'Successfully logged out'}, HTTPStatus.OK, )
+        return {'message': 'Successfully logged out'}, HTTPStatus.OK
 
 
 class Refresh(Resource):
@@ -96,36 +92,34 @@ class Refresh(Resource):
         access_token = create_access_token(identity=identify, fresh=True)
         refresh_token = create_refresh_token(identity=identify)
 
-        return jsonify({'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK, )
+        return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
 
 class ChangeLoginPassword(Resource):
     """Смена логина (email) или пароля"""
 
+    @validate_form(ChangeDataForm)
     @jwt_required(fresh=True)
     def post(self):
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
         if user and str(user.id) == get_jwt_identity():
             form = ChangeDataForm()
-            if form.validate_on_submit():
-                if (
-                        form.email.data
-                        and check_password_hash(user.password, form.old_password.data)
-                        and not form.new_password.data
-                ):
-                    return change_login(user, form)
+            if (
+                    form.email.data
+                    and check_password_hash(user.password, form.old_password.data)
+                    and not form.new_password.data
+            ):
+                return change_login(user, form)
 
-                elif (
-                        not form.email.data
-                        and check_password_hash(user.password, form.old_password.data)
-                        and all(itm for itm in (form.new_password.data, form.new_password2.data))
-                ):
-                    return change_password(user, form)
+            elif (
+                    not form.email.data
+                    and check_password_hash(user.password, form.old_password.data)
+                    and all(itm for itm in (form.new_password.data, form.new_password2.data))
+            ):
+                return change_password(user, form)
 
-                else:
-                    return change_login_and_password(user, form)
+            else:
+                return change_login_and_password(user, form)
 
-            return jsonify({'error': 'Incorrect data'}, HTTPStatus.BAD_REQUEST)
-
-        return jsonify({'error': 'User not found in database'}, HTTPStatus.OK)
+        return {'message': 'User not found in database'}, HTTPStatus.OK
