@@ -50,17 +50,17 @@ class SignUp(Resource):
         form = SignUpForm()
         user = User.query.filter_by(email=form.email.data).first()
 
-        if user:
-            return {'message': f'User {form.email.data} already exist'}, HTTPStatus.OK
+        if not user:
+            new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
+            profile = Profile(user=new_user)
+            history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
 
-        new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
-        profile = Profile(user=new_user)
-        history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
+            db.session.add_all([new_user, profile, history])
+            db.session.commit()
 
-        db.session.add_all([new_user, profile, history])
-        db.session.commit()
+            return {'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK
 
-        return {'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK
+        return {'message': f'User {form.email.data} already exist'}, HTTPStatus.OK
 
 
 class Logout(Resource):
