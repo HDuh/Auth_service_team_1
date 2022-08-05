@@ -18,8 +18,8 @@ class Role(db.Model):
     permission = db.relationship(
         'Permission',
         secondary=role_permission_table,
-        cascade="all,delete",
         backref='permission',
         lazy='dynamic',
+        passive_deletes=True,
         overlaps="role,role",
     )
