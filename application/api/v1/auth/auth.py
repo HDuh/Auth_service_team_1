@@ -11,9 +11,10 @@ from flask_jwt_extended import (
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from application.core import Config
 from application.extensions import db, cache
 from application.forms import LoginForm, SignUpForm, ChangeDataForm
-from application.models import User, AuthHistory, Profile
+from application.models import User, AuthHistory, Profile, Role
 from application.models.models_enums import ActionsEnum
 from application.services import change_login, change_password, change_login_and_password, expired_time
 from application.utils.decorators import validate_form
@@ -55,6 +56,10 @@ class SignUp(Resource):
             history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
 
             db.session.add_all([new_user, profile, history])
+            # дефолтная роль
+            role = Role.query.filter_by(role_name=Config.DEFAULT_ROLE).first()
+
+            new_user.role.append(role)
             db.session.commit()
 
             return {'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK
