@@ -1,4 +1,5 @@
-from application.extensions import app, db
+from application.api.v1.auth.auth import SignUp
+from application.extensions import app, db, docs
 
 
 def init_api():
@@ -8,6 +9,8 @@ def init_api():
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_role)
 
+    docs.register(SignUp, blueprint='auth')
+    # docs.register().b
 
 if __name__ == '__main__':
     init_api()
