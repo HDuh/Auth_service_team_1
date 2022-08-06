@@ -19,7 +19,7 @@ from application.forms.responses_forms import ResponseSchema
 from application.models import User, AuthHistory, Profile, Role
 from application.models.models_enums import ActionsEnum
 from application.services import change_login, change_password, change_users_credentials, expired_time
-from application.utils.decorators import validate_form
+from application.utils.decorators import validate_form, role_access
 
 
 class Login(MethodResource, Resource):
@@ -28,7 +28,7 @@ class Login(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='User login to account',
          summary='User authentication')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
+    # @marshal_with(ResponseSchema, code=200, description='Server response')
     @marshal_with(ResponseSchema, code=400, description='Bad server response')
     @use_kwargs(LoginForm)
     @validate_form(LoginForm)
@@ -37,7 +37,10 @@ class Login(MethodResource, Resource):
         user = User.query.filter_by(email=body['email']).first()
 
         if user and check_password_hash(user.password, body['password']):
-            access_token = create_access_token(identity=str(user.id), fresh=True)
+            access_token = create_access_token(
+                identity={'user_id': str(user.id), 'roles': [role.role_name for role in user.role]},
+                fresh=True
+            )
             refresh_token = create_refresh_token(identity=str(user.id))
 
             history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
@@ -50,8 +53,8 @@ class Login(MethodResource, Resource):
 
 
 class SignUp(MethodResource, Resource):
-
     """Регистрация пользователя"""
+
     @doc(tags=['Auth'],
          description='User signup method and create account',
          summary='User registration')
@@ -93,7 +96,7 @@ class Logout(MethodResource, Resource):
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
         identify = get_jwt_identity()
-        user = User.query.filter_by(id=identify).first()
+        user = User.query.filter_by(id=identify['user_id']).first()
         history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGOUT)
         db.session.add(history),
         db.session.commit()
@@ -115,7 +118,7 @@ class Refresh(MethodResource, Resource):
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
         identify = get_jwt_identity()
-        access_token = create_access_token(identity=identify, fresh=True)
+        access_token = create_access_token(identity=identify['user_id'], fresh=True)
         refresh_token = create_refresh_token(identity=identify)
 
         return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
@@ -141,7 +144,7 @@ class ChangeCredentials(MethodResource, Resource):
 
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
-        if user and str(user.id) == get_jwt_identity():
+        if user and str(user.id) == identify['user_id']:
             if (
                     email
                     and check_password_hash(user.password, old_password)
