@@ -9,7 +9,7 @@ from application.models.models_enums import ActionsEnum
 __all__ = (
     'change_login',
     'change_password',
-    'change_login_and_password',
+    'change_users_credentials',
 )
 
 
@@ -42,7 +42,7 @@ def change_password(db, user: User, body: dict):
     return {'message': 'Incorrect data'}, HTTPStatus.BAD_REQUEST
 
 
-def change_login_and_password(db, user: User, body: dict):
+def change_users_credentials(db, user: User, body: dict):
     """Логика смены логина (email) и пароля"""
 
     if User.query.filter_by(email=body['email']).first():

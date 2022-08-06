@@ -26,6 +26,10 @@ class Config:
     FLASK_HOST: str = os.getenv('FLASK_HOST', '0.0.0.0')
     FLASK_PORT: int = int(os.getenv('FLASK_PORT', 5000))
 
+    # cache
+    CACHE_HOST = os.getenv('REDIS_HOST')
+    CACHE_PORT = int(os.getenv('REDIS_PORT'))
+
     # jwt
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
@@ -33,5 +37,7 @@ class Config:
     # other
     SECRET_KEY: str = os.getenv('SECRET_KEY')
     WTF_CSRF_ENABLED = False
-    TEST_DATABASE_URI: str = f'{DB}+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/test'
-    
+    DEFAULT_ROLE = "regular_user"
+    BASE_PERMISSIONS = ['base_content', 'premium_content', 'change_roles', 'root', 'likes', 'comments']
+
+    TEST_DATABASE_URI: str = f'{DB}+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/tests'

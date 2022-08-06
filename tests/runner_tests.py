@@ -5,13 +5,11 @@ tests_suite = loader.discover('')
 tests_run = unittest.TextTestRunner(verbosity=2)
 tests_run.warnings = 'ignore'
 
-if __name__ == "__main__":
-    print('\n'+'Count of tests: ' + str(tests_suite.countTestCases()) + '\n')
 
-    status = None
+def run():
+    print('\n' + 'Count of tests: ' + str(tests_suite.countTestCases()) + '\n')
 
     res = tests_run.run(tests_suite)
-
     if res.wasSuccessful():
         status = 'SUCCESS'
     else:
@@ -20,3 +18,7 @@ if __name__ == "__main__":
     print(f'\nErrors: {len(res.errors)}'
           f'\nFailed Tests: {len(res.failures)}')
     print(f'Tests status: {status}')
+
+
+if __name__ == '__main__':
+    run()
