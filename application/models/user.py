@@ -15,8 +15,8 @@ class User(db.Model):
     __tablename__ = 'user'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(256), unique=True, nullable=False)
+    password = db.Column(db.String(256), nullable=False)
     is_active = db.Column(db.Boolean(True))
     data_joined = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
@@ -38,3 +38,6 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.email}>'
+
+    def get_id(self):
+        return str(self.id)

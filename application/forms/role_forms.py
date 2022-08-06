@@ -1,19 +1,31 @@
-from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms.validators import DataRequired
+from marshmallow import Schema, validate, validates, ValidationError, validates_schema
+from marshmallow.fields import Str, List, Email
 
 __all__ = (
+    'RoleBase',
     'RoleForm',
-    'UpdateRoleForm'
+    'UpdateRoleForm',
+    'UserRoleForm'
 )
 
 
-class RoleForm(FlaskForm):
-    role_name = StringField('Role', validators=[DataRequired()])
+class RoleBase(Schema):
+    role_name = Str(required=True, validate=validate.Length(min=3, max=128))
 
 
-class UpdateRoleForm(FlaskForm):
-    role_name = StringField('Role', validators=[DataRequired()])
-    new_role_name = StringField('NewRole', validators=[DataRequired()])
+class RoleForm(RoleBase):
+    permissions = List(Str, required=True)
 
-# TODO: сделать инициализацию пермишинов при старте
+
+class UpdateRoleForm(RoleBase):
+    new_role_name = Str(required=True, validate=validate.Length(min=3, max=128))
+    permissions = List(Str, required=True)
+
+    @validates_schema
+    def validate_role_names(self, schema, **kwargs):
+        if schema['new_role_name'] == schema['role_name']:
+            raise ValidationError('Role name should be different')
+
+
+class UserRoleForm(RoleBase):
+    email = Email(required=True, validate=validate.Length(min=5, max=256))

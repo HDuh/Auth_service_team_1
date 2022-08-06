@@ -19,7 +19,7 @@ user_permission_table = db.Table(
 role_permission_table = db.Table(
     'role_permission',
     db.Column('permission_id', UUID(as_uuid=True), db.ForeignKey('permission.id')),
-    db.Column('role_id', UUID(as_uuid=True), db.ForeignKey('role.id')),
+    db.Column('role_id', UUID(as_uuid=True), db.ForeignKey('role.id', ondelete='CASCADE')),
 )
 
 # Таблица связывает пользователя и роли
