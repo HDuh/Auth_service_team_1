@@ -12,7 +12,14 @@ def validate_form(form=None):
             f = form()
             if not (error := f.validate(request.json)):
                 return func(*args, **kwargs)
-            abort(http_status_code=HTTPStatus.BAD_REQUEST, message=f'Incorrect params {error}')
+            errors: list = []
+            incorrect_params: list = [i for i in error]
+            for param_i in incorrect_params:
+                errors.append(f"{param_i}: '{error.get(param_i)[0]}'")
+
+            error_message = ', '.join(errors)
+
+            abort(http_status_code=HTTPStatus.BAD_REQUEST, message=error_message)
 
         return inner
 
