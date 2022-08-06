@@ -1,13 +1,23 @@
 from http import HTTPStatus
 from uuid import UUID
 
+from flask_apispec import MethodResource, doc, marshal_with, use_kwargs
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
+from marshmallow import fields
 
+from application.forms.responses_forms import ResponseSchema
 from application.models import User
 
 
-class UserProfile(Resource):
+class UserProfile(MethodResource, Resource):
+    """ Профиль пользователя со всей информацией о нем """
+
+    @doc(tags=['User'],
+         description='User profile with full info',
+         summary='User profile')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=404, description='Bad server response')
     @jwt_required(fresh=True)
     def get(self, user_id):
         user = User.query.filter_by(id=user_id).first()
@@ -25,7 +35,14 @@ class UserProfile(Resource):
         return {'message': f'User id {user_id} not found'}, HTTPStatus.NOT_FOUND
 
 
-class UserAuthHistory(Resource):
+class UserAuthHistory(MethodResource, Resource):
+    """ История действий по аунтификации(вход, выход, смена пароля) пользователя """
+
+    @doc(tags=['User'],
+         description='History of authentication actions (login, logout, password change) of the user',
+         summary='User authentication history')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=404, description='Bad server response')
     @jwt_required(fresh=True)
     def get(self, user_id):
         user = User.query.filter_by(id=user_id).first()

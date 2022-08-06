@@ -8,6 +8,8 @@ from application.main import app, db, init_api
 from tests.functional.constants import TEST_LOGIN_DATA, TEST_USER_DATA, TEST_ROLE_NAME
 from tests.functional.utils import clear_tables
 
+# TODO: заменить test DB на auth
+
 
 class TestBase(flask_unittest.ClientTestCase):
     app.config['TESTING'] = True

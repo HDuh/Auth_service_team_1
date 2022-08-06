@@ -1,5 +1,5 @@
-from application.core import Config
-from application.extensions import app, db, cache
+from application.core import Config, swagger
+from application.extensions import app, db, cache, docs
 
 
 def init_api():
@@ -8,6 +8,8 @@ def init_api():
 
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_role)
+
+    swagger.registration(docs)
 
 
 if __name__ == '__main__':
