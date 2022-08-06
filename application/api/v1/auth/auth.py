@@ -11,10 +11,10 @@ from flask_jwt_extended import (
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.core.jwt_blocklist import jwt_redis_blocklist
-from application.extensions import db
+from application.core import Config
+from application.extensions import db, cache
 from application.forms import LoginForm, SignUpForm, ChangeDataForm
-from application.models import User, AuthHistory, Profile
+from application.models import User, AuthHistory, Profile, Role
 from application.models.models_enums import ActionsEnum
 from application.services import change_login, change_password, change_login_and_password, expired_time
 from application.utils.decorators import validate_form
@@ -25,11 +25,10 @@ class Login(Resource):
 
     @validate_form(LoginForm)
     def post(self):
-        form = LoginForm()
+        body = request.json
+        user = User.query.filter_by(email=body['email']).first()
 
-        user = User.query.filter_by(email=form.email.data).first()
-
-        if user and check_password_hash(user.password, form.password.data):
+        if user and check_password_hash(user.password, body['password']):
             access_token = create_access_token(identity=str(user.id), fresh=True)
             refresh_token = create_refresh_token(identity=str(user.id))
 
@@ -47,20 +46,25 @@ class SignUp(Resource):
 
     @validate_form(SignUpForm)
     def post(self):
-        form = SignUpForm()
-        user = User.query.filter_by(email=form.email.data).first()
+        body = request.json
+        email = body['email']
+        user = User.query.filter_by(email=email).first()
 
         if not user:
-            new_user = User(email=form.email.data, password=generate_password_hash(form.password.data), is_active=True)
+            new_user = User(email=email, password=generate_password_hash(body['password']), is_active=True)
             profile = Profile(user=new_user)
             history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
 
             db.session.add_all([new_user, profile, history])
+            # дефолтная роль
+            role = Role.query.filter_by(role_name=Config.DEFAULT_ROLE).first()
+
+            new_user.role.append(role)
             db.session.commit()
 
             return {'message': f'User {new_user.email} successfully registered'}, HTTPStatus.OK
 
-        return {'message': f'User {form.email.data} already exist'}, HTTPStatus.OK
+        return {'message': f'User {email} already exist'}, HTTPStatus.OK
 
 
 class Logout(Resource):
@@ -69,7 +73,7 @@ class Logout(Resource):
     @jwt_required()
     def post(self):
         jwt_info = get_jwt()
-        jwt_redis_blocklist.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
+        cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
@@ -86,7 +90,7 @@ class Refresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
         jwt_info = get_jwt()
-        jwt_redis_blocklist.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
+        cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
         identify = get_jwt_identity()
         access_token = create_access_token(identity=identify, fresh=True)
@@ -101,25 +105,30 @@ class ChangeLoginPassword(Resource):
     @validate_form(ChangeDataForm)
     @jwt_required(fresh=True)
     def post(self):
+        body = request.json
+        email = body['email']
+        old_password = body['old_password']
+        new_password = body.get('new_password')
+        new_password2 = body.get('new_password2')
+
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify).first()
         if user and str(user.id) == get_jwt_identity():
-            form = ChangeDataForm()
             if (
-                    form.email.data
-                    and check_password_hash(user.password, form.old_password.data)
-                    and not form.new_password.data
+                    email
+                    and check_password_hash(user.password, old_password)
+                    and not new_password
             ):
-                return change_login(user, form)
+                return change_login(db, user, body)
 
             elif (
-                    not form.email.data
-                    and check_password_hash(user.password, form.old_password.data)
-                    and all(itm for itm in (form.new_password.data, form.new_password2.data))
+                    not email
+                    and check_password_hash(user.password, old_password)
+                    and all(itm for itm in (new_password, new_password2))
             ):
-                return change_password(user, form)
+                return change_password(db, user, body)
 
             else:
-                return change_login_and_password(user, form)
+                return change_login_and_password(db, user, body)
 
         return {'message': 'User not found in database'}, HTTPStatus.OK
