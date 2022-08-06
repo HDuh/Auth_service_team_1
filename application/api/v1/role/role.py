@@ -2,18 +2,28 @@ import json
 from http import HTTPStatus
 
 from flask import request
+from flask_apispec import MethodResource, marshal_with, doc, use_kwargs
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 
 from application.extensions import db, cache
 from application.forms import RoleForm, UpdateRoleForm
+from application.forms.responses_forms import ResponseSchema
 from application.forms.role_forms import RoleBase, UserRoleForm
 from application.models import Role, User
 from application.services.permissions import is_user_permissions_exist, add_permissions
 from application.utils.decorators import validate_form
 
 
-class Roles(Resource):
+class Roles(MethodResource, Resource):
+    """ Создание, редактирование и удаление ролей """
+
+    @doc(tags=['Role'],
+         description='Role create',
+         summary='Role create')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @use_kwargs(RoleForm)
     @validate_form(RoleForm)
     @jwt_required(fresh=True)
     def post(self):
@@ -36,6 +46,12 @@ class Roles(Resource):
 
         return {'message': f'Role {role_name} created'}, HTTPStatus.CREATED
 
+    @doc(tags=['Role'],
+         description='Role changing data',
+         summary='Role changing data')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @use_kwargs(UpdateRoleForm)
     @validate_form(UpdateRoleForm)
     @jwt_required(fresh=True)
     def patch(self):
@@ -70,6 +86,12 @@ class Roles(Resource):
 
         return {'message': 'Role updated'}, HTTPStatus.OK
 
+    @doc(tags=['Role'],
+         description='Role delete',
+         summary='Role delete')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @use_kwargs(RoleBase)
     @validate_form(RoleBase)
     @jwt_required(fresh=True)
     def delete(self):
@@ -85,7 +107,14 @@ class Roles(Resource):
         return {'message': f'Role {role_name} not found'}, HTTPStatus.NOT_FOUND
 
 
-class RoleList(Resource):
+class RoleList(MethodResource, Resource):
+    """ Список всех ролей """
+
+    @doc(tags=['Role'],
+         description='All roles list',
+         summary='All roles list')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
     @jwt_required(fresh=True)
     def get(self):
         roles = []
@@ -95,7 +124,15 @@ class RoleList(Resource):
         return roles, HTTPStatus.OK
 
 
-class UserRole(Resource):
+class UserRole(MethodResource, Resource):
+    """ Присвоение/ удаление роли у пользователя """
+
+    @doc(tags=['Role'],
+         description='Assign role to a user',
+         summary='Assign role to a user')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @use_kwargs(UserRoleForm)
     @validate_form(UserRoleForm)
     @jwt_required(fresh=True)
     def post(self):
@@ -112,6 +149,12 @@ class UserRole(Resource):
 
         return {'message': f'Role {role_name} does not assign to user {email}'}, HTTPStatus.NOT_FOUND
 
+    @doc(tags=['Role'],
+         description='Delete role from user',
+         summary='Delete role from user')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @use_kwargs(UserRoleForm)
     @validate_form(UserRoleForm)
     @jwt_required(fresh=True)
     def delete(self):

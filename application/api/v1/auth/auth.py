@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from flask import request
+from flask_apispec import doc, use_kwargs, marshal_with, MethodResource
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -14,17 +15,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from application.core import Config
 from application.extensions import db, cache
 from application.forms import LoginForm, SignUpForm, ChangeDataForm
+from application.forms.responses_forms import ResponseSchema
 from application.models import User, AuthHistory, Profile, Role
 from application.models.models_enums import ActionsEnum
-from application.services import change_login, change_password, change_login_and_password, expired_time
+from application.services import change_login, change_password, change_users_credentials, expired_time
 from application.utils.decorators import validate_form
 
 
-class Login(Resource):
+class Login(MethodResource, Resource):
     """Аутентификация пользователя"""
 
+    @doc(tags=['Auth'],
+         description='User login to account',
+         summary='User authentication')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @use_kwargs(LoginForm)
     @validate_form(LoginForm)
-    def post(self):
+    def post(self, **kwargs):
         body = request.json
         user = User.query.filter_by(email=body['email']).first()
 
@@ -41,11 +49,17 @@ class Login(Resource):
         return {'message': 'Incorrect login or password'}, HTTPStatus.BAD_REQUEST
 
 
-class SignUp(Resource):
-    """Регистрация пользователя"""
+class SignUp(MethodResource, Resource):
 
+    """Регистрация пользователя"""
+    @doc(tags=['Auth'],
+         description='User signup method and create account',
+         summary='User registration')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @use_kwargs(SignUpForm)
     @validate_form(SignUpForm)
-    def post(self):
+    def post(self, **kwargs):
         body = request.json
         email = body['email']
         user = User.query.filter_by(email=email).first()
@@ -67,11 +81,14 @@ class SignUp(Resource):
         return {'message': f'User {email} already exist'}, HTTPStatus.OK
 
 
-class Logout(Resource):
+class Logout(MethodResource, Resource):
     """Выход пользователя из УЗ"""
 
+    @doc(tags=['Auth'], description='User logout method from account.', summary='User logout')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
     @jwt_required()
-    def post(self):
+    def post(self, **kwargs):
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
@@ -84,11 +101,16 @@ class Logout(Resource):
         return {'message': 'Successfully logged out'}, HTTPStatus.OK
 
 
-class Refresh(Resource):
+class Refresh(MethodResource, Resource):
     """Получение новой пары токенов в обмен на refresh"""
 
+    @doc(tags=['Auth'],
+         description='Generate new tokens pair exchange for refresh key',
+         summary='User refresh tokens pair')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
     @jwt_required(refresh=True)
-    def post(self):
+    def post(self, **kwargs):
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
@@ -99,12 +121,18 @@ class Refresh(Resource):
         return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
 
-class ChangeLoginPassword(Resource):
+class ChangeCredentials(MethodResource, Resource):
     """Смена логина (email) или пароля"""
 
+    @doc(tags=['Auth'],
+         description='Change of login (email) or/and password for user',
+         summary='User change credentials')
+    @marshal_with(ResponseSchema, code=200, description='Server response')
+    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @use_kwargs(ChangeDataForm)
     @validate_form(ChangeDataForm)
     @jwt_required(fresh=True)
-    def post(self):
+    def post(self, **kwargs):
         body = request.json
         email = body['email']
         old_password = body['old_password']
@@ -129,6 +157,6 @@ class ChangeLoginPassword(Resource):
                 return change_password(db, user, body)
 
             else:
-                return change_login_and_password(db, user, body)
+                return change_users_credentials(db, user, body)
 
         return {'message': 'User not found in database'}, HTTPStatus.OK

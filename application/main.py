@@ -1,5 +1,4 @@
-from application.api.v1.auth.auth import SignUp
-from application.core import Config
+from application.core import Config, swagger
 from application.extensions import app, db, cache, docs
 
 
@@ -10,7 +9,7 @@ def init_api():
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_role)
 
-    docs.register(SignUp, blueprint='auth')
+    swagger.registration(docs)
 
 
 if __name__ == '__main__':
