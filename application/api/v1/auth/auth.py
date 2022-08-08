@@ -28,8 +28,8 @@ class Login(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='User login to account',
          summary='User authentication')
-    # @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @use_kwargs(LoginForm)
     @validate_form(LoginForm)
     def post(self, **kwargs):
@@ -58,8 +58,8 @@ class SignUp(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='User signup method and create account',
          summary='User registration')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @use_kwargs(SignUpForm)
     @validate_form(SignUpForm)
     def post(self, **kwargs):
@@ -88,8 +88,8 @@ class Logout(MethodResource, Resource):
     """Выход пользователя из УЗ"""
 
     @doc(tags=['Auth'], description='User logout method from account.', summary='User logout')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required()
     def post(self, **kwargs):
         jwt_info = get_jwt()
@@ -110,8 +110,8 @@ class Refresh(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='Generate new tokens pair exchange for refresh key',
          summary='User refresh tokens pair')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required(refresh=True)
     def post(self, **kwargs):
         jwt_info = get_jwt()
@@ -130,8 +130,8 @@ class ChangeCredentials(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='Change of login (email) or/and password for user',
          summary='User change credentials')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @use_kwargs(ChangeDataForm)
     @validate_form(ChangeDataForm)
     @jwt_required(fresh=True)

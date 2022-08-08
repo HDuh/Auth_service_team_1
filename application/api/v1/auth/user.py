@@ -16,8 +16,8 @@ class UserProfile(MethodResource, Resource):
     @doc(tags=['User'],
          description='User profile with full info',
          summary='User profile')
-    # @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=404, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
     @role_access('base_user', 'admin', 'moderator')
     def get(self, user_id):
@@ -42,8 +42,8 @@ class UserAuthHistory(MethodResource, Resource):
     @doc(tags=['User'],
          description='History of authentication actions (login, logout, password change) of the user',
          summary='User authentication history')
-    # @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=404, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
     @role_access('base_user', 'admin', 'moderator')
     def get(self, user_id):

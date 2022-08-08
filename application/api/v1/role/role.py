@@ -1,3 +1,4 @@
+import json
 from http import HTTPStatus
 
 from flask import request
@@ -20,13 +21,13 @@ class Roles(MethodResource, Resource):
     @doc(tags=['Role'],
          description='Role create',
          summary='Role create')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @use_kwargs(RoleForm)
     @validate_form(RoleForm)
     @jwt_required(fresh=True)
     @role_access('admin')
-    def post(self):
+    def post(self, **kwargs):
         body = request.json
         role_name = body['role_name']
         user_permissions = body['permissions']
@@ -48,13 +49,13 @@ class Roles(MethodResource, Resource):
     @doc(tags=['Role'],
          description='Role changing data',
          summary='Role changing data')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @use_kwargs(UpdateRoleForm)
     @validate_form(UpdateRoleForm)
     @jwt_required(fresh=True)
     @role_access('admin')
-    def patch(self):
+    def patch(self, **kwargs):
         body = request.json
         old_name = body['role_name']
         new_name = body['new_role_name']
@@ -86,13 +87,13 @@ class Roles(MethodResource, Resource):
     @doc(tags=['Role'],
          description='Role delete',
          summary='Role delete')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @use_kwargs(RoleBase)
     @validate_form(RoleBase)
     @jwt_required(fresh=True)
     @role_access('admin')
-    def delete(self):
+    def delete(self, **kwargs):
         body = request.json
         role_name = body['role_name']
         role = Role.query.filter_by(role_name=role_name).first()
@@ -110,11 +111,11 @@ class RoleList(MethodResource, Resource):
     @doc(tags=['Role'],
          description='All roles list',
          summary='All roles list')
-    # @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
     @role_access('admin', 'moderator')
-    def get(self):
+    def get(self, **kwargs):
         return [
                    {
                        role.role_name: [permission.permission_name for permission in role.permission]
@@ -128,13 +129,13 @@ class UserRole(MethodResource, Resource):
     @doc(tags=['Role'],
          description='Assign role to a user',
          summary='Assign role to a user')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @use_kwargs(UserRoleForm)
     @validate_form(UserRoleForm)
     @jwt_required(fresh=True)
     @role_access('admin', 'moderator')
-    def post(self):
+    def post(self, **kwargs):
         body = request.json
         email = body['email']
         role_name = body['role_name']
@@ -151,13 +152,13 @@ class UserRole(MethodResource, Resource):
     @doc(tags=['Role'],
          description='Delete role from user',
          summary='Delete role from user')
-    @marshal_with(ResponseSchema, code=200, description='Server response')
-    @marshal_with(ResponseSchema, code=400, description='Bad server response')
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @use_kwargs(UserRoleForm)
     @validate_form(UserRoleForm)
     @jwt_required(fresh=True)
     @role_access('admin', 'moderator')
-    def delete(self):
+    def delete(self, **kwargs):
         body = request.json
         email = body['email']
         role_name = body['role_name']
