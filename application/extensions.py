@@ -5,6 +5,7 @@ from flask import Flask
 from flask_apispec.extension import FlaskApiSpec
 from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
+from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 
@@ -26,7 +27,7 @@ app.config.update({
 app.config.from_object(Config)
 marshmallow = Marshmallow(app)
 db = SQLAlchemy(app)
-
+migrate = Migrate(app, db)
 api = Api(app)
 docs = FlaskApiSpec(app)
 

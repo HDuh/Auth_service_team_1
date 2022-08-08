@@ -118,7 +118,7 @@ class Refresh(MethodResource, Resource):
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
         identify = get_jwt_identity()
-        access_token = create_access_token(identity=identify['user_id'], fresh=True)
+        access_token = create_access_token(identity=identify, fresh=True)
         refresh_token = create_refresh_token(identity=identify)
 
         return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK

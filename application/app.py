@@ -1,5 +1,17 @@
+import click
+from flask_cli import with_appcontext
+
 from application.core import Config, swagger
 from application.extensions import app, db, cache, docs
+from application.services.auth import create_root
+
+
+@app.cli.command("create-root")
+@click.argument("password")
+@with_appcontext
+def create_user(password):
+    """Create root user"""
+    create_root(db, password)
 
 
 def init_api():
@@ -8,7 +20,6 @@ def init_api():
 
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_role)
-
     swagger.registration(docs)
 
 
