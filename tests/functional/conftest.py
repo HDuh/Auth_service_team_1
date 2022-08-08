@@ -4,7 +4,7 @@ import flask_unittest
 from flask.testing import FlaskClient
 
 from .test_config import Config
-from application.app import app, db, init_api
+from app import app, db, init_api
 from tests.functional.constants import TEST_LOGIN_DATA, TEST_USER_DATA, TEST_ROLE_NAME
 from tests.functional.utils import clear_tables
 

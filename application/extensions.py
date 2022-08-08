@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 
-from application.core import Config
+from core import Config
 
 app = Flask(__name__)
 

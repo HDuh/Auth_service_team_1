@@ -1,8 +1,8 @@
 from gevent import monkey
 
-from application.app import create_app
-from application.core import Config
-from application.extensions import app
+from app import create_app
+from core import Config
+from extensions import app
 
 monkey.patch_all()
 from gevent.pywsgi import WSGIServer
