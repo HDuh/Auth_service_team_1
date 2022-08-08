@@ -23,8 +23,8 @@ def init_api():
     swagger.registration(docs)
 
 
-def main():
-    db.init_app(app)
+def create_app(flask_app):
+    db.init_app(flask_app)
     init_api()
     db.create_all()
     from application.services.permissions import init_permissions, init_default_role
@@ -32,14 +32,8 @@ def main():
     init_permissions(db, Config)
     init_default_role(db, Config)
 
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    return flask_app
 
 
 if __name__ == '__main__':
-    from gevent import monkey
-
-    monkey.patch_all()
-    from gevent.pywsgi import WSGIServer
-
-    http_server = WSGIServer(("", 5001), main())
-    http_server.serve_forever()
+    app.run(debug=True, host='0.0.0.0', port=5001)
