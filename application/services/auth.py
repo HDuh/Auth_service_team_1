@@ -3,13 +3,14 @@ from http import HTTPStatus
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.models import User, AuthHistory
+from application.models import User, AuthHistory, Profile, Role
 from application.models.models_enums import ActionsEnum
 
 __all__ = (
     'change_login',
     'change_password',
     'change_users_credentials',
+    'create_root',
 )
 
 
@@ -63,3 +64,15 @@ def change_users_credentials(db, user: User, body: dict):
         db.session.commit()
 
         return {'message': 'Login and password change successfully'}, HTTPStatus.OK
+
+
+def create_root(db, password):
+    user = User(email='root', password=generate_password_hash(password), is_active=True)
+    profile = Profile(user=user)
+    db.session.add_all([user, profile])
+    # Назначаем все роли
+    roles = Role.query.all()
+    for role in roles:
+        user.role.append(role)
+
+    db.session.commit()
