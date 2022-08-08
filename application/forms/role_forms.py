@@ -1,4 +1,4 @@
-from marshmallow import Schema, validate, validates, ValidationError, validates_schema
+from marshmallow import Schema, validate, ValidationError, validates_schema
 from marshmallow.fields import Str, List, Email
 
 __all__ = (

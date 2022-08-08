@@ -1,13 +1,13 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from flask_apispec import MethodResource, doc, marshal_with, use_kwargs
+from flask_apispec import MethodResource, doc, marshal_with
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
-from marshmallow import fields
 
 from application.forms.responses_forms import ResponseSchema
 from application.models import User
+from application.utils.decorators import role_access
 
 
 class UserProfile(MethodResource, Resource):
@@ -19,9 +19,10 @@ class UserProfile(MethodResource, Resource):
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
+    @role_access('base_user', 'admin', 'moderator')
     def get(self, user_id):
         user = User.query.filter_by(id=user_id).first()
-        if user and user.id == UUID(get_jwt_identity()):
+        if user and user.id == UUID(get_jwt_identity()['user_id']):
             return {
                        'profile_id': str(user.profile.id),
                        'user_id': str(user.profile.user_id),
@@ -44,9 +45,10 @@ class UserAuthHistory(MethodResource, Resource):
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
+    @role_access('base_user', 'admin', 'moderator')
     def get(self, user_id):
         user = User.query.filter_by(id=user_id).first()
-        if user and user.id == UUID(get_jwt_identity()):
+        if user and user.id == UUID(get_jwt_identity()['user_id']):
             return [
                        {
                            'user_id': str(data.user_id),
