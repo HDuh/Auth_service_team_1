@@ -1,4 +1,4 @@
-from application.extensions import jwt, cache
+from extensions import jwt, cache
 
 
 @jwt.token_in_blocklist_loader

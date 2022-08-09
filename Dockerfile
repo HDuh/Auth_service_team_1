@@ -6,13 +6,15 @@ ENV PYTHONUNBUFFERED 1
 EXPOSE 5432:5432
 EXPOSE 6379:6379
 
-WORKDIR /usr/src/application
-# TODO: доделать
+WORKDIR /usr/src/app
+
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip && \
     pip install -r requirements.txt && \
     rm requirements.txt
 
-COPY . /usr/src/app/
+COPY application/. /usr/src/app/
+COPY waiter.sh .
+RUN apt update && apt install -y netcat && chmod +x waiter.sh
 
-ENTRYPOINT python utils/wait_for.py && pytest --disable-pytest-warnings src
+ENTRYPOINT ./waiter.sh && python3 pywsgi.py
