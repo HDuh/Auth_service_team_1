@@ -2,7 +2,7 @@ import click
 from flask_cli import with_appcontext
 
 from core import Config, swagger
-from extensions import app, db, cache, docs
+from extensions import app, db, docs
 from services.auth import create_root
 
 
