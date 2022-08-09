@@ -1,9 +1,9 @@
 import click
 from flask_cli import with_appcontext
 
-from application.core import Config, swagger
-from application.extensions import app, db, cache, docs
-from application.services.auth import create_root
+from core import Config, swagger
+from extensions import app, db, docs
+from services.auth import create_root
 
 
 @app.cli.command("create-root")
@@ -15,22 +15,25 @@ def create_user(password):
 
 
 def init_api():
-    from application.api.v1.auth.routes import bp_auth
-    from application.api.v1.role.routes import bp_role
+    from api.v1.auth.routes import bp_auth
+    from api.v1.role.routes import bp_role
 
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_role)
     swagger.registration(docs)
 
 
-if __name__ == '__main__':
-    db.init_app(app)
+def create_app(flask_app):
+    db.init_app(flask_app)
     init_api()
     db.create_all()
-    from application.services.permissions import init_permissions, init_default_roles
+    from services.permissions import init_permissions, init_default_roles
 
     init_permissions(db, Config)
     init_default_roles(db, Config)
 
+    return flask_app
+
+
+if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
-    cache.flushdb()

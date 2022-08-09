@@ -24,7 +24,8 @@ class Config:
 
     # flask app
     FLASK_HOST: str = os.getenv('FLASK_HOST', '0.0.0.0')
-    FLASK_PORT: int = int(os.getenv('FLASK_PORT', 5000))
+    FLASK_PORT: int = int(os.getenv('FLASK_PORT', 5001))
+    API_PORT: int = int(os.getenv('API_PORT', 5002))
 
     # cache
     CACHE_HOST = os.getenv('REDIS_HOST')

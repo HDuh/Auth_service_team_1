@@ -6,6 +6,7 @@ from flask.testing import FlaskClient
 
 from application.extensions import db
 from application.models import User, Role
+from models import User
 from tests.functional.conftest import TestBase, AuthActions
 from tests.functional.constants import TEST_MAIL
 

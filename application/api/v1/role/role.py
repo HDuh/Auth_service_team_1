@@ -1,4 +1,3 @@
-import json
 from http import HTTPStatus
 
 from flask import request
@@ -6,13 +5,13 @@ from flask_apispec import MethodResource, marshal_with, doc, use_kwargs
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 
-from application.extensions import db
-from application.forms import RoleForm, UpdateRoleForm
-from application.forms.responses_forms import ResponseSchema
-from application.forms.role_forms import RoleBase, UserRoleForm
-from application.models import Role, User, Permission
-from application.services.permissions import is_user_permissions_exist, add_permissions
-from application.utils.decorators import validate_form, role_access
+from extensions import db
+from forms import RoleForm, UpdateRoleForm
+from forms.responses_forms import ResponseSchema
+from forms.role_forms import RoleBase, UserRoleForm
+from models import Role, User, Permission
+from services.permissions import is_user_permissions_exist, add_permissions
+from utils.decorators import validate_form, role_access
 
 
 class Roles(MethodResource, Resource):

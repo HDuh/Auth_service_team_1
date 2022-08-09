@@ -3,8 +3,8 @@ from http import HTTPStatus
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.models import User, AuthHistory, Profile, Role
-from application.models.models_enums import ActionsEnum
+from models import User, AuthHistory, Profile, Role
+from models.models_enums import ActionsEnum
 
 __all__ = (
     'change_login',

@@ -5,9 +5,9 @@ from flask_apispec import MethodResource, doc, marshal_with
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 
-from application.forms.responses_forms import ResponseSchema
-from application.models import User
-from application.utils.decorators import role_access
+from forms.responses_forms import ResponseSchema
+from models import User
+from utils.decorators import role_access
 
 
 class UserProfile(MethodResource, Resource):
