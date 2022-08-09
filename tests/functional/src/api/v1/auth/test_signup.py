@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from flask.testing import FlaskClient
 
-from application.models import User, Profile, AuthHistory
+from models import User, Profile, AuthHistory
 from tests.functional.conftest import TestBase
 from tests.functional.constants import TEST_MAIL, TEST_USER_DATA
 
