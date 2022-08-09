@@ -27,10 +27,10 @@ if __name__ == '__main__':
     db.init_app(app)
     init_api()
     db.create_all()
-    from application.services.permissions import init_permissions, init_default_role
+    from application.services.permissions import init_permissions, init_default_roles
 
     init_permissions(db, Config)
-    init_default_role(db, Config)
+    init_default_roles(db, Config)
 
     app.run(debug=True, host='0.0.0.0', port=5001)
     cache.flushdb()

@@ -36,5 +36,6 @@ class Config:
     # other
     SECRET_KEY: str = os.getenv('SECRET_KEY')
     WTF_CSRF_ENABLED = False
-    DEFAULT_ROLE = "regular_user"
+    DEFAULT_ROLES = "regular_user"
     BASE_PERMISSIONS = ['base_content', 'premium_content', 'change_roles', 'root', 'likes', 'comments']
+    BASE_ROLES = [DEFAULT_ROLES, "admin"]

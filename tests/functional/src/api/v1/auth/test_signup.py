@@ -1,21 +1,27 @@
+import json
 from http import HTTPStatus
 
-from flask.testing import FlaskClient
+import requests
 
 from application.models import User, Profile, AuthHistory
-from tests.functional.conftest import TestBase
-from tests.functional.constants import TEST_MAIL, TEST_USER_DATA
+from tests.functional.conftest import TestBase, AuthActions
+from tests.functional.constants import TEST_MAIL, TEST_SIGN_UP_DATA
 
 
 class TestSignup(TestBase):
-    def test_signup_user(self, client: FlaskClient):
-        response = client.post('/signup', data=TEST_USER_DATA)
+    def test_signup_user(self):
+        auth = AuthActions()
+        url = f"{auth.base_url}/signup"
+        payload = json.dumps(TEST_SIGN_UP_DATA)
+
+        response = requests.request("POST", url, headers=auth.headers, data=payload)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        self.assertEqual(f'User {TEST_MAIL} successfully registered', response.json.get('message'))
+        self.assertEqual(f'User {TEST_MAIL} successfully registered', response.json().get('message'))
 
-    def test_signup_user_in_db(self, client: FlaskClient) -> None:
-        client.post('/signup', data=TEST_USER_DATA)
+    def test_signup_user_in_db(self) -> None:
+        auth = AuthActions()
+        auth.signup()
 
         user = User.query.filter_by(email=TEST_MAIL).first()
         user_profile = Profile.query.filter_by(user_id=user.id).first()
@@ -26,15 +32,30 @@ class TestSignup(TestBase):
         self.assertNotEqual(user_profile, None)
         self.assertNotEqual(auth_history, None)
 
-    def test_signup_already_exist(self, client: FlaskClient) -> None:
-        client.post('/signup', data=TEST_USER_DATA)
+    def test_signup_already_exist(self) -> None:
+        auth = AuthActions()
+        auth.signup()
+        url = f"{auth.base_url}/signup"
+        payload = json.dumps(TEST_SIGN_UP_DATA)
 
-        response = client.post('/signup', data=TEST_USER_DATA)
+        response = requests.request("POST", url, headers=auth.headers, data=payload)
 
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        self.assertEqual(f'User {TEST_MAIL} already exist', response.json.get('message'))
+        self.assertEqual(f'User {TEST_MAIL} already exist', response.json().get('message'))
 
-    def test_signup_incorrect_data(self, client: FlaskClient) -> None:
-        response = client.post('/signup', data={})
+    def test_signup_empty_data(self) -> None:
+        auth = AuthActions()
+        url = f"{auth.base_url}/signup"
+
+        response = requests.request("POST", url, headers=auth.headers, data={})
         self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
-        self.assertEqual('Incorrect params', response.json.get('message'))
+
+    def test_signup_incorrect_mail(self) -> None:
+        auth = AuthActions()
+        url = f"{auth.base_url}/signup"
+        payload = json.dumps({"email": "te.com",
+                              "password": "incorrect",
+                              "password2": "incorrect"})
+        response = requests.request("POST", url, headers=auth.headers, data=payload)
+        self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
+        self.assertEqual("email - 'Not a valid email address.'", response.json().get('message'))

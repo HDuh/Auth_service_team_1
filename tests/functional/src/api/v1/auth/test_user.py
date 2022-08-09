@@ -1,25 +1,32 @@
 import uuid
 from http import HTTPStatus
 
+import requests
 from flask.testing import FlaskClient
 
-from application.models import User
+from application.extensions import db
+from application.models import User, Role
 from tests.functional.conftest import TestBase, AuthActions
 from tests.functional.constants import TEST_MAIL
 
 
 class TestUser(TestBase):
-    def test_get_profile_info(self, client: FlaskClient) -> None:
-        auth = AuthActions(client)
-        auth.login()
+    def test_get_profile_info(self) -> None:
+        auth = AuthActions()
+        auth.admin_login()
         user = User.query.filter_by(email=TEST_MAIL).first()
         user_id = user.get_id()
+        url = f"{auth.base_url}/user/{user_id}"
         headers = {'Authorization': f'Bearer {auth.access_token}'}
 
-        response = client.get(f'/user/{user_id}', headers=headers)
+        response = requests.request("GET", url, headers=headers)
 
+        print('s')
+        for i in user.role.all():
+            print(i)
+        print(response.text)
         self.assertEqual(HTTPStatus.OK, response.status_code)
-        self.assertEqual(user_id, response.json.get('user_id'))
+        self.assertEqual(user_id, response.json().get('user_id'))
 
     def test_get_profile_info_not_exist(self, client: FlaskClient) -> None:
         auth = AuthActions(client)

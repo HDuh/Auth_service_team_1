@@ -1,59 +1,72 @@
+import json
+import unittest
 from http import HTTPStatus
 
-import flask_unittest
+import requests
 from flask.testing import FlaskClient
 
-from .test_config import Config
-from application.app import app, db, init_api
-from tests.functional.constants import TEST_LOGIN_DATA, TEST_USER_DATA, TEST_ROLE_NAME
+from application.app import db
+from application.models import User, Role
+from application.services.permissions import init_permissions, init_default_roles
+from tests.functional.constants import TEST_LOGIN_DATA, TEST_SIGN_UP_DATA, TEST_ROLE_NAME
 from tests.functional.utils import clear_tables
+from .test_config import Config
 
-# TODO: заменить test DB на auth
 
-
-class TestBase(flask_unittest.ClientTestCase):
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = Config.TEST_DATABASE_URI
-
-    app = app
-    init_api()
-    db.create_all()
-
-    @classmethod
-    def setUpClass(cls) -> None:
+class TestBase(unittest.TestCase):
+    def setUp(self):
+        clear_tables(db)
+        init_permissions(db, Config)
+        init_default_roles(db, Config)
         db.create_all()
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        db.drop_all()
-
-    def setUp(self, client: FlaskClient) -> None:
-        ...
-
-    def tearDown(self, client: FlaskClient) -> None:
+    def tearDown(self):
         db.session.remove()
         clear_tables(db)
 
 
 class AuthActions(object):
-    def __init__(self, client: FlaskClient):
-        self._client = client
+    def __init__(self):
         self.access_token = None
         self.refresh_token = None
+        self.headers = {
+            'Content-Type': 'application/json'
+        }
+        self.base_url = f"http://localhost:{Config.FLASK_PORT}"
 
-    def signup(self, data=TEST_USER_DATA):
-        self._client.post('/signup', data=data)
+    def signup(self, data=TEST_SIGN_UP_DATA):
+        url = f"{self.base_url}/signup"
+        payload = json.dumps(data)
+
+        response = requests.request("POST", url, headers=self.headers, data=payload)
+        assert response.status_code == HTTPStatus.OK
 
     def login(self, data=TEST_LOGIN_DATA):
         self.signup()
-        response = self._client.post('/login', data=data)
+        url = f"{self.base_url}/login"
+        payload = json.dumps(data)
+        response = requests.request("POST", url, headers=self.headers, data=payload)
+        assert response.status_code == HTTPStatus.OK
+
+        self.access_token = response.json().get('access_token')
+        self.refresh_token = response.json().get('refresh_token')
+
+    def admin_login(self, data=TEST_LOGIN_DATA):
+        self.login()
+        user = User.query.filter_by(email=TEST_LOGIN_DATA.get('email')).first()
+        role = Role.query.filter_by(role_name='admin').first()
+        user.role.append(role)
+        db.session.commit()
+
+        url = f"{self.base_url}/login"
+
+        payload = json.dumps(data)
+        response = requests.request("POST", url, headers=self.headers, data=payload)
 
         assert response.status_code == HTTPStatus.OK
 
-        self.access_token = response.json.get('access_token')
-        self.refresh_token = response.json.get('refresh_token')
-
-        return
+        self.access_token = response.json().get('access_token')
+        self.refresh_token = response.json().get('refresh_token')
 
     def logout(self):
         ...

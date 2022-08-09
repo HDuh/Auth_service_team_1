@@ -35,3 +35,4 @@ apispec~=5.2.2
 marshmallow==3.17.0
 flask-marshmallow==0.14.0
 flask-cli==0.4.0
+requests==2.28.1

@@ -21,20 +21,21 @@ def init_permissions(db, config):
     db.session.commit()
 
 
-def init_default_role(db, config, permissions=None):
+def init_default_roles(db, config, permissions=None):
     if permissions is None:
         permissions = ['base_content', 'likes', 'comments']
-    role_name = config.DEFAULT_ROLE
-    role = Role.query.filter_by(role_name=role_name).first()
 
-    if not role:
-        default_role = ((uuid4()), role_name)
-        statement = insert(Role).values(default_role).on_conflict_do_nothing()
-        db.session.execute(statement)
+    for role_i in config.BASE_ROLES:
+        role = Role.query.filter_by(role_name=role_i).first()
 
-        role = Role.query.filter_by(role_name=role_name).first()
-        add_permissions(user_permissions=permissions, role=role)
-        db.session.commit()
+        if not role:
+            default_role = ((uuid4()), role_i)
+            statement = insert(Role).values(default_role).on_conflict_do_nothing()
+            db.session.execute(statement)
+
+            role = Role.query.filter_by(role_name=role_i).first()
+            add_permissions(user_permissions=permissions, role=role)
+            db.session.commit()
 
 
 def is_user_permissions_exist(user_permissions, permissions):

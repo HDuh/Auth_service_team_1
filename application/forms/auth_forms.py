@@ -16,9 +16,9 @@ class SignUpForm(Schema):
     password2 = Str(required=True, validate=validate.Length(min=6, max=256))
 
     @validates_schema
-    def validate_role_names(self, schema, **kwargs):
+    def validate_eq_passwords(self, schema, **kwargs):
         if schema['password'] != schema['password2']:
-            raise ValidationError('Role name should be different')
+            raise ValidationError('Passwords password and password2 should be equal')
 
 
 class LoginForm(Schema):
@@ -39,7 +39,7 @@ class ChangeDataForm(Schema):
     @validates_schema
     def compare_passwords(self, schema, **kwargs):
         if schema['new_password'] != schema['new_password2']:
-            raise ValidationError('Role name should be different')
+            raise ValidationError('Passwords password and password2 should be equal')
 
     @validates_schema
     def validate_eq_passwords(self, schema, **kwargs):
