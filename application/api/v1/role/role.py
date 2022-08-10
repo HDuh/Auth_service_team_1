@@ -29,17 +29,17 @@ class Roles(MethodResource, Resource):
     def post(self, **kwargs):
         body = request.json
         role_name = body['role_name']
-        user_permissions = body['permissions']
+        role_permissions = body['permissions']
         role = Role.query.filter_by(role_name=role_name).first()
         permissions = [permission.permission_name for permission in Permission.query.all()]
 
-        is_user_permissions_exist(user_permissions, permissions)
+        is_user_permissions_exist(role_permissions, permissions)
 
         if role:
             return {'message': f'Role {role_name} already exist'}, HTTPStatus.BAD_REQUEST
 
         new_role = Role(role_name=role_name)
-        add_permissions(user_permissions, new_role)
+        add_permissions(role_permissions, new_role)
         db.session.add(new_role)
         db.session.commit()
 

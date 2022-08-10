@@ -3,7 +3,6 @@ import unittest
 from http import HTTPStatus
 
 import requests
-from flask.testing import FlaskClient
 
 from application.app import db
 from application.models import User, Role
@@ -32,7 +31,7 @@ class AuthActions(object):
         self.headers = {
             'Content-Type': 'application/json'
         }
-        self.base_url = f"http://localhost:{Config.FLASK_PORT}"
+        self.base_url = f"http://{Config.FLASK_HOST}:{Config.FLASK_PORT}"
 
     def signup(self, data=TEST_SIGN_UP_DATA):
         url = f"{self.base_url}/signup"
@@ -73,38 +72,28 @@ class AuthActions(object):
 
 
 class RoleActions(object):
-    def __init__(self, client: FlaskClient):
-        self._client = client
+    def __init__(self):
+        self.auth = AuthActions()
+        self.auth.admin_login()
+        self.url = f"{self.auth.base_url}/role"
+        self.auth.headers.update({'Authorization': f'Bearer {self.auth.access_token}'})
+        self.headers = self.auth.headers
 
     def create_role(self, role_name=TEST_ROLE_NAME):
-        # user registration
-        auth = AuthActions(self._client)
-        auth.login()
-        # request params
-        headers = {'Authorization': f'Bearer {auth.access_token}'}
-        data = {'role_name': role_name}
+        payload = json.dumps({'role_name': role_name})
+        response = requests.request("POST", self.url, headers=self.headers, data=payload)
 
-        return self._client.post('/role', data=data, headers=headers)
+        return response
 
     def update_role(self, new_role_name, role_name=TEST_ROLE_NAME):
-        # user registration
-        auth = AuthActions(self._client)
-        auth.login()
+        payload = json.dumps({'role_name': role_name,
+                              'new_role_name': new_role_name})
+        response = requests.request("PATCH", self.url, headers=self.headers, data=payload)
 
-        # request params
-        headers = {'Authorization': f'Bearer {auth.access_token}'}
-        data = {'role_name': role_name,
-                'new_role_name': new_role_name}
-
-        return self._client.patch('/role', data=data, headers=headers)
+        return response
 
     def delete_role(self, role_name):
-        # user registration
-        auth = AuthActions(self._client)
-        auth.login()
+        payload = json.dumps({'role_name': role_name})
+        response = requests.request("DELETE", self.url, headers=self.headers, data=payload)
 
-        # request params
-        headers = {'Authorization': f'Bearer {auth.access_token}'}
-        data = {'role_name': role_name}
-
-        return self._client.delete('/role', data=data, headers=headers)
+        return response

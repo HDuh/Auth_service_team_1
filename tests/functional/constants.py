@@ -27,3 +27,4 @@ class TestChangeDataUser:
 
 TEST_LOGIN_DATA = asdict(TestLoginUser())
 TEST_SIGN_UP_DATA = asdict(TestSignUpUser())
+TEST_CHANGE_DATA = asdict(TestChangeDataUser())
