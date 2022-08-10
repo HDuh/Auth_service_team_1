@@ -18,6 +18,7 @@ class RoleForm(RoleBase):
 
 
 class UpdateRoleForm(RoleBase):
+    role_name = Str(required=True, validate=validate.Length(min=3, max=128))
     new_role_name = Str(required=True, validate=validate.Length(min=3, max=128))
     permissions = List(Str, required=True)
 

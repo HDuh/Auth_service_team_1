@@ -16,7 +16,7 @@ def validate_form(form=None):
             errors: list = []
             incorrect_params: list = [i for i in error]
             for param_i in incorrect_params:
-                errors.append(f"{param_i}: '{error.get(param_i)[0]}'")
+                errors.append(f"{param_i} - '{error.get(param_i)[0]}'")
 
             error_message = ', '.join(errors)
 
@@ -32,9 +32,8 @@ def role_access(*access_roles):
         @wraps(func)
         def inner(*args, **kwargs):
             user_roles = get_jwt_identity()['roles']
-            for role in user_roles:
-                if role not in access_roles:
-                    abort(http_status_code=HTTPStatus.FORBIDDEN, message='Access denied')
+            if not any(role in access_roles for role in user_roles):
+                abort(http_status_code=HTTPStatus.FORBIDDEN, message='Access denied')
 
             return func(*args, **kwargs)
 

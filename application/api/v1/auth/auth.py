@@ -30,7 +30,7 @@ class Login(MethodResource, Resource):
          summary='User authentication')
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(LoginForm)
+    @use_kwargs(LoginForm, apply=False)
     @validate_form(LoginForm)
     def post(self, **kwargs):
         body = request.json
@@ -60,7 +60,7 @@ class SignUp(MethodResource, Resource):
          summary='User registration')
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(SignUpForm)
+    @use_kwargs(SignUpForm, apply=False)
     @validate_form(SignUpForm)
     def post(self, **kwargs):
         body = request.json
@@ -74,7 +74,7 @@ class SignUp(MethodResource, Resource):
 
             db.session.add_all([new_user, profile, history])
             # дефолтная роль
-            role = Role.query.filter_by(role_name=Config.DEFAULT_ROLE).first()
+            role = Role.query.filter_by(role_name=Config.DEFAULT_ROLES).first()
 
             new_user.role.append(role)
             db.session.commit()
@@ -114,13 +114,18 @@ class Refresh(MethodResource, Resource):
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required(refresh=True)
     def post(self, **kwargs):
+
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
         identify = get_jwt_identity()
-        access_token = create_access_token(identity=identify, fresh=True)
-        refresh_token = create_refresh_token(identity=identify)
 
+        user = User.query.filter_by(id=identify).first()
+        access_token = create_access_token(
+            identity={'user_id': str(user.id), 'roles': [role.role_name for role in user.role]},
+            fresh=True
+        )
+        refresh_token = create_refresh_token(identity=identify)
         return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
 
@@ -132,7 +137,7 @@ class ChangeCredentials(MethodResource, Resource):
          summary='User change credentials')
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(ChangeDataForm)
+    @use_kwargs(ChangeDataForm, apply=False)
     @validate_form(ChangeDataForm)
     @jwt_required(fresh=True)
     def post(self, **kwargs):
