@@ -20,7 +20,7 @@ class TestLogin(TestBase):
         self.assertIn('access_token', response.json())
         self.assertIn('refresh_token', response.json())
 
-    def test_incorrect_login_user(self) -> None:
+    def test_incorrect_login_user(self):
         auth = AuthActions()
         auth.signup()
         url = f"{auth.base_url}/login"

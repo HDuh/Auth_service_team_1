@@ -17,7 +17,7 @@ class TestLogout(TestBase):
         self.assertEqual(HTTPStatus.OK, response.status_code)
         self.assertEqual('Successfully logged out', response.json().get('message'))
 
-    def test_logout_user_incorrect_token(self) -> None:
+    def test_logout_user_incorrect_token(self):
         auth = AuthActions()
         auth.login()
         url = f"{auth.base_url}/logout"
@@ -28,7 +28,7 @@ class TestLogout(TestBase):
         self.assertEqual(HTTPStatus.UNPROCESSABLE_ENTITY, response.status_code)
         self.assertEqual('Only non-refresh tokens are allowed', response.json().get('msg'))
 
-    def test_logout_user_incorrect_header(self) -> None:
+    def test_logout_user_incorrect_header(self):
         auth = AuthActions()
         auth.login()
         url = f"{auth.base_url}/logout"
@@ -38,7 +38,7 @@ class TestLogout(TestBase):
         self.assertEqual(HTTPStatus.UNPROCESSABLE_ENTITY, response.status_code)
         self.assertEqual('Not enough segments', response.json().get('msg'))
 
-    def test_logout_user_empty(self) -> None:
+    def test_logout_user_empty(self):
         auth = AuthActions()
         auth.login()
         url = f"{auth.base_url}/logout"

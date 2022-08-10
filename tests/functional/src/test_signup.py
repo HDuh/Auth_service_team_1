@@ -19,7 +19,7 @@ class TestSignup(TestBase):
         self.assertEqual(HTTPStatus.OK, response.status_code)
         self.assertEqual(f'User {TEST_MAIL} successfully registered', response.json().get('message'))
 
-    def test_signup_user_in_db(self) -> None:
+    def test_signup_user_in_db(self):
         auth = AuthActions()
         auth.signup()
 
@@ -32,7 +32,7 @@ class TestSignup(TestBase):
         self.assertNotEqual(user_profile, None)
         self.assertNotEqual(auth_history, None)
 
-    def test_signup_already_exist(self) -> None:
+    def test_signup_already_exist(self):
         auth = AuthActions()
         auth.signup()
         url = f"{auth.base_url}/signup"
@@ -43,14 +43,14 @@ class TestSignup(TestBase):
         self.assertEqual(HTTPStatus.OK, response.status_code)
         self.assertEqual(f'User {TEST_MAIL} already exist', response.json().get('message'))
 
-    def test_signup_empty_data(self) -> None:
+    def test_signup_empty_data(self):
         auth = AuthActions()
         url = f"{auth.base_url}/signup"
 
         response = requests.request("POST", url, headers=auth.headers, data={})
         self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
 
-    def test_signup_incorrect_mail(self) -> None:
+    def test_signup_incorrect_mail(self):
         auth = AuthActions()
         url = f"{auth.base_url}/signup"
         payload = json.dumps({"email": "te.com",
