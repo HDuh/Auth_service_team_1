@@ -8,7 +8,7 @@ from tests.functional.constants import TEST_LOGIN_DATA
 
 
 class TestRefresh(TestBase):
-    def test_refresh(self) -> None:
+    def test_refresh(self):
         auth = AuthActions()
         auth.login()
         url = f"{auth.base_url}/refresh_token"
@@ -21,7 +21,7 @@ class TestRefresh(TestBase):
         self.assertIn('access_token', response.json())
         self.assertIn('refresh_token', response.json())
 
-    def test_incorrect_token(self) -> None:
+    def test_incorrect_token(self):
         auth = AuthActions()
         auth.login()
         url = f"{auth.base_url}/refresh_token"
@@ -33,7 +33,7 @@ class TestRefresh(TestBase):
         self.assertEqual(HTTPStatus.UNPROCESSABLE_ENTITY, response.status_code)
         self.assertEqual('Only refresh tokens are allowed', response.json().get('msg'))
 
-    def test_incorrect_header(self) -> None:
+    def test_incorrect_header(self):
         auth = AuthActions()
         auth.login()
         url = f"{auth.base_url}/refresh_token"
@@ -45,7 +45,7 @@ class TestRefresh(TestBase):
         self.assertEqual(HTTPStatus.UNPROCESSABLE_ENTITY, response.status_code)
         self.assertEqual('Not enough segments', response.json().get('msg'))
 
-    def test_empty_header(self) -> None:
+    def test_empty_header(self):
         auth = AuthActions()
         auth.login()
         url = f"{auth.base_url}/refresh_token"

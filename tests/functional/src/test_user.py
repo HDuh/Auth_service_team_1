@@ -2,17 +2,15 @@ import uuid
 from http import HTTPStatus
 
 import requests
-from flask.testing import FlaskClient
 
-from application.extensions import db
-from application.models import User, Role
+from application.models import User
 from models import User
 from tests.functional.conftest import TestBase, AuthActions
 from tests.functional.constants import TEST_MAIL
 
 
 class TestUser(TestBase):
-    def test_get_profile_info(self) -> None:
+    def test_get_profile_info(self):
         auth = AuthActions()
         auth.admin_login()
         user = User.query.filter_by(email=TEST_MAIL).first()
@@ -22,15 +20,11 @@ class TestUser(TestBase):
 
         response = requests.request("GET", url, headers=headers)
 
-        print('s')
-        for i in user.role.all():
-            print(i)
-        print(response.text)
         self.assertEqual(HTTPStatus.OK, response.status_code)
         self.assertEqual(user_id, response.json().get('user_id'))
 
-    def test_get_profile_info_not_exist(self, client: FlaskClient) -> None:
-        auth = AuthActions(client)
+    def test_get_profile_info_not_exist(self):
+        auth = AuthActions()
         auth.login()
         test_id = uuid.uuid4()
         headers = {'Authorization': f'Bearer {auth.access_token}'}
@@ -40,8 +34,8 @@ class TestUser(TestBase):
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
         self.assertEqual(f'User id {test_id} not found', response.json.get('message'))
 
-    def test_get_auth_history(self, client: FlaskClient) -> None:
-        auth = AuthActions(client)
+    def test_get_auth_history(self):
+        auth = AuthActions()
         auth.login()
         user = User.query.filter_by(email=TEST_MAIL).first()
         user_id = user.get_id()
@@ -57,8 +51,8 @@ class TestUser(TestBase):
         self.assertEqual('signup', signup_info.get('action'))
         self.assertEqual('login', login_info.get('action'))
 
-    def test_get_auth_history_not_exist(self, client: FlaskClient) -> None:
-        auth = AuthActions(client)
+    def test_get_auth_history_not_exist(self):
+        auth = AuthActions()
         auth.login()
         test_id = uuid.uuid4()
         headers = {'Authorization': f'Bearer {auth.access_token}'}
