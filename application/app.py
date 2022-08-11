@@ -27,10 +27,10 @@ def create_app(flask_app):
     db.init_app(flask_app)
     init_api(flask_app)
     db.create_all()
-    from services.permissions import init_permissions, init_default_role
+    from services.permissions import init_permissions, init_default_roles
 
     init_permissions(db, Config)
-    init_default_role(db, Config)
+    init_default_roles(db, Config)
 
     return flask_app
 

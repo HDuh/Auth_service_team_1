@@ -23,3 +23,6 @@ class Role(db.Model):
         passive_deletes=True,
         overlaps="role,role",
     )
+
+    def __str__(self):
+        return f"{self.id}: {self.role_name}"

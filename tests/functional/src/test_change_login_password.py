@@ -15,7 +15,8 @@ class TestChangeLoginPassword(TestBase):
                 'old_password': TEST_USER_DATA.get('password')}
 
         response = client.post('/change_auth_data', data=data, headers=headers)
-
+        print('')
+        print(response.json)
         self.assertEqual(HTTPStatus.OK, response.status_code)
         self.assertEqual('Login change successfully', response.json.get('message'))
 

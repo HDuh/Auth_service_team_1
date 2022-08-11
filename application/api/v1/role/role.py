@@ -22,24 +22,24 @@ class Roles(MethodResource, Resource):
          summary='Role create')
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(RoleForm)
+    @use_kwargs(RoleForm, apply=False)
     @validate_form(RoleForm)
     @jwt_required(fresh=True)
     @role_access('admin')
     def post(self, **kwargs):
         body = request.json
         role_name = body['role_name']
-        user_permissions = body['permissions']
+        role_permissions = body['permissions']
         role = Role.query.filter_by(role_name=role_name).first()
         permissions = [permission.permission_name for permission in Permission.query.all()]
 
-        is_user_permissions_exist(user_permissions, permissions)
+        is_user_permissions_exist(role_permissions, permissions)
 
         if role:
             return {'message': f'Role {role_name} already exist'}, HTTPStatus.BAD_REQUEST
 
         new_role = Role(role_name=role_name)
-        add_permissions(user_permissions, new_role)
+        add_permissions(role_permissions, new_role)
         db.session.add(new_role)
         db.session.commit()
 
@@ -50,7 +50,7 @@ class Roles(MethodResource, Resource):
          summary='Role changing data')
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(UpdateRoleForm)
+    @use_kwargs(UpdateRoleForm, apply=False)
     @validate_form(UpdateRoleForm)
     @jwt_required(fresh=True)
     @role_access('admin')
@@ -88,7 +88,7 @@ class Roles(MethodResource, Resource):
          summary='Role delete')
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(RoleBase)
+    @use_kwargs(RoleBase, apply=False)
     @validate_form(RoleBase)
     @jwt_required(fresh=True)
     @role_access('admin')
@@ -130,10 +130,10 @@ class UserRole(MethodResource, Resource):
          summary='Assign role to a user')
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(UserRoleForm)
+    @use_kwargs(UserRoleForm, apply=False)
     @validate_form(UserRoleForm)
     @jwt_required(fresh=True)
-    @role_access('admin', 'moderator')
+    # @role_access('admin', 'moderator')
     def post(self, **kwargs):
         body = request.json
         email = body['email']
@@ -153,7 +153,7 @@ class UserRole(MethodResource, Resource):
          summary='Delete role from user')
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(UserRoleForm)
+    @use_kwargs(UserRoleForm, apply=False)
     @validate_form(UserRoleForm)
     @jwt_required(fresh=True)
     @role_access('admin', 'moderator')
