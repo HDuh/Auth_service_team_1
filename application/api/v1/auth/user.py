@@ -19,7 +19,7 @@ class UserProfile(MethodResource, Resource):
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
-    @role_access('base_user', 'admin', 'moderator')
+    @role_access('regular_user', 'admin', 'moderator')
     def get(self, user_id):
         user = User.query.filter_by(id=user_id).first()
         if user and user.id == UUID(get_jwt_identity()['user_id']):
@@ -45,8 +45,8 @@ class UserAuthHistory(MethodResource, Resource):
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
-    @role_access('base_user', 'admin', 'moderator')
-    def get(self, user_id):
+    @role_access('regular_user', 'admin', 'moderator')
+    def get(self, user_id, page, per_page):
         user = User.query.filter_by(id=user_id).first()
         if user and user.id == UUID(get_jwt_identity()['user_id']):
             return [
@@ -55,7 +55,7 @@ class UserAuthHistory(MethodResource, Resource):
                            'user_agent': data.user_agent,
                            'action_time': str(data.action_time),
                            'action': data.action.value
-                       } for data in user.auth_history.all()
+                       } for data in user.auth_history.paginate(page=page, per_page=per_page, max_per_page=50).items
                    ], HTTPStatus.OK
 
         return {'message': f'User id {user_id} not found'}, HTTPStatus.NOT_FOUND
