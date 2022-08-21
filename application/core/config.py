@@ -1,11 +1,12 @@
-import os
 from functools import lru_cache
 
+from dotenv import load_dotenv
 from pydantic import BaseSettings, Field
 
 __all__ = (
     'PROJECT_CONFIG',
 )
+load_dotenv()
 
 
 @lru_cache()
@@ -42,8 +43,6 @@ class ProjectSettings(BaseSettings):
     WTF_CSRF_ENABLED: bool
 
     class Config:
-        env_file = os.path.join(os.path.abspath('../../'), '.env')
-        env_file_encoding = 'utf-8'
         case_sensitive = True
 
 
