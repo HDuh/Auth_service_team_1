@@ -1,7 +1,7 @@
 import click
 from flask_cli import with_appcontext
 
-from core import Config, swagger
+from core import PROJECT_CONFIG, swagger
 from extensions import app, db, docs
 from services.auth import create_root
 
@@ -29,8 +29,8 @@ def create_app(flask_app):
     db.create_all()
     from services.permissions import init_permissions, init_default_roles
 
-    init_permissions(db, Config)
-    init_default_roles(db, Config)
+    init_permissions(db, PROJECT_CONFIG)
+    init_default_roles(db, PROJECT_CONFIG)
 
     return flask_app
 

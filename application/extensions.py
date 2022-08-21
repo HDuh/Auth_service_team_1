@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 
-from core import Config
+from core import PROJECT_CONFIG
 
 app = Flask(__name__)
 
@@ -24,7 +24,7 @@ app.config.update({
     'APISPEC_SWAGGER_UI_URL': '/swagger-ui/'  # URI to access UI of API Doc
 })
 
-app.config.from_object(Config)
+app.config.from_object(PROJECT_CONFIG)
 marshmallow = Marshmallow(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -33,8 +33,8 @@ docs = FlaskApiSpec(app)
 
 jwt = JWTManager(app)
 cache = redis.Redis(
-    host=Config.CACHE_HOST,
-    port=Config.CACHE_PORT,
+    host=PROJECT_CONFIG.CACHE_HOST,
+    port=PROJECT_CONFIG.CACHE_PORT,
     db=0,
     decode_responses=True
 )

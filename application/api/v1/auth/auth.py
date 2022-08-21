@@ -12,14 +12,14 @@ from flask_jwt_extended import (
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from core import Config
+from core import PROJECT_CONFIG
 from extensions import db, cache
 from forms import LoginForm, SignUpForm, ChangeDataForm
 from forms.responses_forms import ResponseSchema
 from models import User, AuthHistory, Profile, Role
 from models.models_enums import ActionsEnum
 from services import change_login, change_password, change_users_credentials, expired_time
-from utils.decorators import validate_form, role_access
+from utils.decorators import validate_form
 
 
 class Login(MethodResource, Resource):
@@ -74,7 +74,7 @@ class SignUp(MethodResource, Resource):
 
             db.session.add_all([new_user, profile, history])
             # дефолтная роль
-            role = Role.query.filter_by(role_name=Config.DEFAULT_ROLES).first()
+            role = Role.query.filter_by(role_name=PROJECT_CONFIG.DEFAULT_ROLES).first()
 
             new_user.role.append(role)
             db.session.commit()
@@ -114,7 +114,6 @@ class Refresh(MethodResource, Resource):
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required(refresh=True)
     def post(self, **kwargs):
-
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
