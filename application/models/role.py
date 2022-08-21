@@ -18,10 +18,9 @@ class Role(db.Model):
     permission = db.relationship(
         'Permission',
         secondary=role_permission_table,
-        backref='permission',
+        back_populates='role',
         lazy='dynamic',
         passive_deletes=True,
-        overlaps="role,role",
     )
 
     def __str__(self):
