@@ -1,42 +1,49 @@
-import os
+from functools import lru_cache
 
 from dotenv import load_dotenv
+from pydantic import BaseSettings, Field
 
 __all__ = (
-    'Config',
+    'PROJECT_CONFIG',
 )
-
 load_dotenv()
 
 
-class Config:
+@lru_cache()
+class ProjectSettings(BaseSettings):
     # postgres
-    DB: str = os.getenv('DB', 'postgresql')
-    DB_USER: str = os.getenv('DB_USER')
-    DB_PASSWORD: str = os.getenv('DB_PASSWORD')
-    DB_HOST: str = os.getenv('DB_HOST')
-    DB_PORT: int = int(os.getenv('DB_PORT', 5432))
-    DB_NAME: str = os.getenv('DB_NAME')
+    DB: str = Field(..., env='DB')
+    DB_HOST: str = Field(..., env='DB_HOST')
+    DB_NAME: str = Field(..., env='DB_NAME')
+    DB_PASSWORD: str = Field(..., env='DB_PASSWORD')
+    DB_PORT: int = Field(..., env='DB_PORT')
+    DB_USER: str = Field(..., env='DB_USER')
 
     # sqlalchemy
-    SQLALCHEMY_DATABASE_URI: str = f'{DB}+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI: str = Field(..., env='SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool
 
     # flask app
-    FLASK_HOST: str = os.getenv('FLASK_HOST', '0.0.0.0')
-    FLASK_PORT: int = int(os.getenv('FLASK_PORT', 5001))
-    API_PORT: int = int(os.getenv('API_PORT', 5002))
+    FLASK_HOST: str = Field(..., env='FLASK_HOST')
+    FLASK_PORT: int = Field(..., env='FLASK_PORT')
+    API_PORT: int = Field(..., env='API_PORT')
 
     # cache
-    CACHE_HOST = os.getenv('REDIS_HOST')
-    CACHE_PORT = int(os.getenv('REDIS_PORT'))
+    CACHE_HOST: str = Field(..., env='REDIS_HOST')
+    CACHE_PORT: int = Field(..., env='REDIS_PORT')
     # jwt
-    JWT_BLACKLIST_ENABLED = True
-    JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+    JWT_BLACKLIST_ENABLED: bool
+    JWT_BLACKLIST_TOKEN_CHECKS: list = ['access', 'refresh']
 
     # other
-    SECRET_KEY: str = os.getenv('SECRET_KEY')
-    WTF_CSRF_ENABLED = False
-    DEFAULT_ROLES = "regular_user"
-    BASE_PERMISSIONS = ['base_content', 'premium_content', 'change_roles', 'root', 'likes', 'comments']
-    BASE_ROLES = [DEFAULT_ROLES, "admin"]
+    BASE_PERMISSIONS: list = Field(..., env='BASE_PERMISSIONS')
+    BASE_ROLES: list = Field(..., env='BASE_ROLES')
+    DEFAULT_ROLES: str = Field(..., env='DEFAULT_ROLES')
+    SECRET_KEY: str = Field(..., env='SECRET_KEY')
+    WTF_CSRF_ENABLED: bool
+
+    class Config:
+        case_sensitive = True
+
+
+PROJECT_CONFIG = ProjectSettings()
