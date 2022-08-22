@@ -28,12 +28,12 @@ class Login(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='User login to account',
          summary='User authentication')
+    @use_kwargs(LoginForm)
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(LoginForm, apply=False)
     @validate_form(LoginForm)
-    def post(self, **kwargs):
-        body = request.json
+    def post(self):
+        body = request.get_json()
         user = User.query.filter_by(email=body['email']).first()
 
         if user and check_password_hash(user.password, body['password']):
@@ -58,12 +58,12 @@ class SignUp(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='User signup method and create account',
          summary='User registration')
+    @use_kwargs(SignUpForm)
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(SignUpForm, apply=False)
     @validate_form(SignUpForm)
-    def post(self, **kwargs):
-        body = request.json
+    def post(self):
+        body = request.get_json()
         email = body['email']
         user = User.query.filter_by(email=email).first()
 
@@ -91,7 +91,7 @@ class Logout(MethodResource, Resource):
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required()
-    def post(self, **kwargs):
+    def post(self):
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
@@ -113,7 +113,7 @@ class Refresh(MethodResource, Resource):
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required(refresh=True)
-    def post(self, **kwargs):
+    def post(self):
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
@@ -134,13 +134,13 @@ class ChangeCredentials(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='Change of login (email) or/and password for user',
          summary='User change credentials')
+    @use_kwargs(ChangeDataForm)
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(ChangeDataForm, apply=False)
     @validate_form(ChangeDataForm)
     @jwt_required(fresh=True)
-    def post(self, **kwargs):
-        body = request.json
+    def post(self):
+        body = request.get_json()
         email = body['email']
         old_password = body['old_password']
         new_password = body.get('new_password')
