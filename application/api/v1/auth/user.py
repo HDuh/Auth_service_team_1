@@ -5,17 +5,21 @@ from flask_apispec import MethodResource, doc, marshal_with
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 
-from forms.responses_forms import ResponseSchema
+from core import AUTHORIZATION_HEADER
 from models import User
+from schemas.responses_schemas import ResponseSchema
 from utils.decorators import role_access
 
 
 class UserProfile(MethodResource, Resource):
     """ Профиль пользователя со всей информацией о нем """
 
-    @doc(tags=['User'],
-         description='User profile with full info',
-         summary='User profile')
+    @doc(
+        tags=['User'],
+        description='User profile with full info',
+        summary='User profile',
+        params=AUTHORIZATION_HEADER,
+    )
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
@@ -39,9 +43,12 @@ class UserProfile(MethodResource, Resource):
 class UserAuthHistory(MethodResource, Resource):
     """ История действий по аунтификации(вход, выход, смена пароля) пользователя """
 
-    @doc(tags=['User'],
-         description='History of authentication actions (login, logout, password change) of the user',
-         summary='User authentication history')
+    @doc(
+        tags=['User'],
+        description='History of authentication actions (login, logout, password change) of the user',
+        summary='User authentication history',
+        params=AUTHORIZATION_HEADER,
+    )
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
