@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from flask import request
-from flask_apispec import doc, use_kwargs, marshal_with, MethodResource
+from flask_apispec import doc, marshal_with, MethodResource, use_kwargs
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -12,12 +12,12 @@ from flask_jwt_extended import (
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from core import PROJECT_CONFIG
+from core import PROJECT_CONFIG, AUTHORIZATION_HEADER
 from extensions import db, cache
-from forms import LoginForm, SignUpForm, ChangeDataForm
-from forms.responses_forms import ResponseSchema
 from models import User, AuthHistory, Profile, Role
 from models.models_enums import ActionsEnum
+from schemas import LoginSchema, SignUpSchema, ChangeDataSchema
+from schemas.responses_schemas import ResponseSchema
 from services import change_login, change_password, change_users_credentials, expired_time
 from utils.decorators import validate_form
 
@@ -28,12 +28,12 @@ class Login(MethodResource, Resource):
     @doc(tags=['Auth'],
          description='User login to account',
          summary='User authentication')
+    @use_kwargs(LoginSchema, location='json', apply=False)
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(LoginForm, apply=False)
-    @validate_form(LoginForm)
-    def post(self, **kwargs):
-        body = request.json
+    @validate_form(LoginSchema)
+    def post(self):
+        body = request.get_json()
         user = User.query.filter_by(email=body['email']).first()
 
         if user and check_password_hash(user.password, body['password']):
@@ -55,15 +55,17 @@ class Login(MethodResource, Resource):
 class SignUp(MethodResource, Resource):
     """Регистрация пользователя"""
 
-    @doc(tags=['Auth'],
-         description='User signup method and create account',
-         summary='User registration')
+    @doc(
+        tags=['Auth'],
+        description='User signup method and create account',
+        summary='User registration'
+    )
+    @use_kwargs(SignUpSchema, location='json', apply=False)
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(SignUpForm, apply=False)
-    @validate_form(SignUpForm)
-    def post(self, **kwargs):
-        body = request.json
+    @validate_form(SignUpSchema)
+    def post(self):
+        body = request.get_json()
         email = body['email']
         user = User.query.filter_by(email=email).first()
 
@@ -87,11 +89,16 @@ class SignUp(MethodResource, Resource):
 class Logout(MethodResource, Resource):
     """Выход пользователя из УЗ"""
 
-    @doc(tags=['Auth'], description='User logout method from account.', summary='User logout')
+    @doc(
+        tags=['Auth'],
+        description='User logout method from account.',
+        summary='User logout',
+        params=AUTHORIZATION_HEADER,
+    )
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required()
-    def post(self, **kwargs):
+    def post(self):
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
@@ -107,13 +114,16 @@ class Logout(MethodResource, Resource):
 class Refresh(MethodResource, Resource):
     """Получение новой пары токенов в обмен на refresh"""
 
-    @doc(tags=['Auth'],
-         description='Generate new tokens pair exchange for refresh key',
-         summary='User refresh tokens pair')
+    @doc(
+        tags=['Auth'],
+        description='Generate new tokens pair exchange for refresh key',
+        summary='User refresh tokens pair',
+        params=AUTHORIZATION_HEADER,
+    )
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     @jwt_required(refresh=True)
-    def post(self, **kwargs):
+    def post(self):
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
@@ -131,16 +141,19 @@ class Refresh(MethodResource, Resource):
 class ChangeCredentials(MethodResource, Resource):
     """Смена логина (email) или пароля"""
 
-    @doc(tags=['Auth'],
-         description='Change of login (email) or/and password for user',
-         summary='User change credentials')
+    @doc(
+        tags=['Auth'],
+        description='Change of login (email) or/and password for user',
+        summary='User change credentials',
+        params=AUTHORIZATION_HEADER,
+    )
+    @use_kwargs(ChangeDataSchema, location='json', apply=False)
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @use_kwargs(ChangeDataForm, apply=False)
-    @validate_form(ChangeDataForm)
+    @validate_form(ChangeDataSchema)
     @jwt_required(fresh=True)
-    def post(self, **kwargs):
-        body = request.json
+    def post(self):
+        body = request.get_json()
         email = body['email']
         old_password = body['old_password']
         new_password = body.get('new_password')

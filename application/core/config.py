@@ -5,6 +5,7 @@ from pydantic import BaseSettings, Field
 
 __all__ = (
     'PROJECT_CONFIG',
+    'AUTHORIZATION_HEADER'
 )
 load_dotenv()
 
@@ -47,3 +48,13 @@ class ProjectSettings(BaseSettings):
 
 
 PROJECT_CONFIG = ProjectSettings()
+
+AUTHORIZATION_HEADER = {
+    'Authorization': {
+        'description':
+            'Authorization HTTP header with JWT token. Like: "Bearer {token}"',
+        'in': 'header',
+        'type': 'string',
+        'required': True,
+    },
+}

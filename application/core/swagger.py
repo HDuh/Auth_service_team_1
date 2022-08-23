@@ -4,8 +4,8 @@ from api.v1.role.role import Roles, RoleList, UserRole
 
 
 def registration(docs):
-    docs.register(Login, blueprint='auth')
     docs.register(SignUp, blueprint='auth')
+    docs.register(Login, blueprint='auth')
     docs.register(Logout, blueprint='auth')
     docs.register(Refresh, blueprint='auth')
     docs.register(ChangeCredentials, blueprint='auth')
