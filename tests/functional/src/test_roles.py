@@ -2,10 +2,10 @@ import json
 from http import HTTPStatus
 
 import requests
-from flask.testing import FlaskClient
 
 from tests.functional.conftest import TestBase, AuthActions, RoleActions
 from tests.functional.constants import TEST_ROLE_NAME
+from tests.functional.test_config import Config
 
 
 class TestRoles(TestBase):
@@ -15,10 +15,10 @@ class TestRoles(TestBase):
         url = f"{auth.base_url}/role"
         headers = auth.headers
         headers.update({'Authorization': f'Bearer {auth.access_token}'})
-        payload = json.dumps({'role_name': TEST_ROLE_NAME})
+        payload = json.dumps({'role_name': TEST_ROLE_NAME,
+                              'permissions': Config.BASE_PERMISSIONS})
 
         response = requests.request("POST", url, headers=auth.headers, data=payload)
-
         self.assertEqual(HTTPStatus.CREATED, response.status_code)
         self.assertEqual(f'Role {TEST_ROLE_NAME} created', response.json().get('message'))
 
@@ -31,15 +31,6 @@ class TestRoles(TestBase):
         self.assertEqual(HTTPStatus.BAD_REQUEST, response.status_code)
         self.assertEqual(f'Role {TEST_ROLE_NAME} already exist', response.json().get('message'))
 
-    def test_update(self):
-        role = RoleActions()
-        role.create_role(TEST_ROLE_NAME)
-
-        response = role.update_role(role_name=TEST_ROLE_NAME,
-                                    new_role_name='new_update_role')
-
-        self.assertEqual(HTTPStatus.OK, response.status_code)
-        self.assertEqual('Role updated', response.json().get('message'))
 
     def test_update_not_existed(self):
         role = RoleActions()

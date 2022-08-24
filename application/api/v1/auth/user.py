@@ -5,9 +5,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from marshmallow.fields import Int
 
-from core import AUTHORIZATION_HEADER
-from models import User
-from schemas.responses_schemas import ResponseSchema, AuthHistoryResponse, UserProfileResponse
+from application.core import AUTHORIZATION_HEADER
+from application.models import User
+from application.schemas.responses_schemas import ResponseSchema, AuthHistoryResponse, UserProfileResponse
 from utils.decorators import role_access
 
 
@@ -23,7 +23,7 @@ class UserProfile(MethodResource, Resource):
     @marshal_with(UserProfileResponse, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
-    # @role_access('regular_user', 'admin', 'moderator')
+    @role_access('regular_user', 'admin', 'moderator')
     def get(self):
         user_id = get_jwt_identity().get('user_id')
         user = User.query.filter_by(id=user_id).first()
@@ -61,7 +61,7 @@ class UserAuthHistory(MethodResource, Resource):
     @marshal_with(AuthHistoryResponse(many=True), code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=404, description='Bad server response', apply=False)
     @jwt_required(fresh=True)
-    # @role_access('regular_user', 'admin', 'moderator')
+    @role_access('regular_user', 'admin', 'moderator')
     def get(self):
         from flask import request
         input_params = request.args.to_dict()

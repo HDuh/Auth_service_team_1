@@ -10,8 +10,11 @@
 Swagger документация API
 > http://localhost/swagger-ui/
 
-Миграции
-> https://flask-migrate.readthedocs.io/en/latest/
+Миграции и команды
+ - Инициализация базовых ролей и пермишенов: `flask fill-db`
+ - Создание суперпользователя: `flask create-root password`
+ - Создать файл с миграцией: `flask db migrate -m "migration massage"`
+ - Применить миграцию: `flask db upgrade`
 
 Запуск контейнеров необходимых для разработки
 > docker-compose -f docker-compose.dev.yml up -d 

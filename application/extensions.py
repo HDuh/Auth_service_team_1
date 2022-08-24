@@ -8,7 +8,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 
-from core import PROJECT_CONFIG
+from application.core import PROJECT_CONFIG
 
 app = Flask(__name__)
 app.config.from_object(PROJECT_CONFIG)

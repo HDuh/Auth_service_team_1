@@ -14,10 +14,9 @@ from .test_config import Config
 
 class TestBase(unittest.TestCase):
     def setUp(self):
-        clear_tables(db)
+        db.create_all()
         init_permissions(db, Config)
         init_default_roles(db, Config)
-        db.create_all()
 
     def tearDown(self):
         db.session.remove()
@@ -80,14 +79,16 @@ class RoleActions(object):
         self.headers = self.auth.headers
 
     def create_role(self, role_name=TEST_ROLE_NAME):
-        payload = json.dumps({'role_name': role_name})
+        payload = json.dumps({'role_name': role_name,
+                              'permissions': Config.BASE_PERMISSIONS[:2]})
         response = requests.request("POST", self.url, headers=self.headers, data=payload)
 
         return response
 
     def update_role(self, new_role_name, role_name=TEST_ROLE_NAME):
         payload = json.dumps({'role_name': role_name,
-                              'new_role_name': new_role_name})
+                              'new_role_name': new_role_name,
+                              'permissions': Config.BASE_PERMISSIONS[2:]})
         response = requests.request("PATCH", self.url, headers=self.headers, data=payload)
 
         return response

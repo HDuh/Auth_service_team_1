@@ -4,7 +4,7 @@ from uuid import uuid4
 from flask_restful import abort
 from sqlalchemy.dialects.postgresql import insert
 
-from models import Permission, Role
+from application.models import Permission, Role
 
 
 def set_permissions(db, role, permissions):
