@@ -97,13 +97,13 @@ class Logout(MethodResource, Resource):
     )
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
-    @jwt_required()
+    @jwt_required(fresh=True)
     def post(self):
         jwt_info = get_jwt()
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
         identify = get_jwt_identity()
-        user = User.query.filter_by(id=identify['user_id']).first()
+        user = User.query.filter_by(id=identify.get('user_id')).first()
         history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGOUT)
         db.session.add(history),
         db.session.commit()
@@ -160,8 +160,8 @@ class ChangeCredentials(MethodResource, Resource):
         new_password2 = body.get('new_password2')
 
         identify = get_jwt_identity()
-        user = User.query.filter_by(id=identify).first()
-        if user and str(user.id) == identify['user_id']:
+        user = User.query.filter_by(id=identify.get('user_id')).first()
+        if user and str(user.id) == identify.get('user_id'):
             if (
                     email
                     and check_password_hash(user.password, old_password)
