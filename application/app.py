@@ -20,6 +20,7 @@ def init_api(flask_app):
 def create_app(flask_app):
     db.init_app(flask_app)
     migrate.init_app(app, db)
+    db.create_all()
     init_api(flask_app)
     init_cli_commands(app)
 

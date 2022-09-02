@@ -42,6 +42,8 @@ class ProjectSettings(BaseSettings):
     DEFAULT_ROLES: str = Field(..., env='DEFAULT_ROLES')
     SECRET_KEY: str = Field(..., env='SECRET_KEY')
     WTF_CSRF_ENABLED: bool
+    # OAUTHLIB_INSECURE_TRANSPORT = 1
+    # OAUTHLIB_RELAX_TOKEN_SCOPE = 1
 
     class Config:
         case_sensitive = True
