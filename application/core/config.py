@@ -1,11 +1,13 @@
 from functools import lru_cache
+from typing import Any
 
 from dotenv import load_dotenv
 from pydantic import BaseSettings, Field
 
 __all__ = (
     'PROJECT_CONFIG',
-    'AUTHORIZATION_HEADER'
+    'AUTHORIZATION_HEADER',
+    'GOOGLE_CONFIG',
 )
 load_dotenv()
 
@@ -42,6 +44,7 @@ class ProjectSettings(BaseSettings):
     DEFAULT_ROLES: str = Field(..., env='DEFAULT_ROLES')
     SECRET_KEY: str = Field(..., env='SECRET_KEY')
     WTF_CSRF_ENABLED: bool
+
     # OAUTHLIB_INSECURE_TRANSPORT = 1
     # OAUTHLIB_RELAX_TOKEN_SCOPE = 1
 
@@ -49,7 +52,25 @@ class ProjectSettings(BaseSettings):
         case_sensitive = True
 
 
+@lru_cache()
+class GoogleClient(BaseSettings):
+    name: str = Field('google')
+    client_id: str = Field(..., env='GOOGLE_CLIENT_ID')
+    client_secret: str = Field(..., env='GOOGLE_CLIENT_SECRET')
+    server_metadata_url: Any = Field(default='https://accounts.google.com/.well-known/openid-configuration'),
+    access_token_url: Any = Field(default='https://oauth2.googleapis.com/token'),
+    access_token_params: Any = Field(default=None),
+    authorize_url: Any = Field(default="https://accounts.google.com/o/oauth2/auth"),
+    authorize_params: Any = Field(default=None),
+    client_kwargs: dict = Field(
+        {
+            'scope': 'openid email profile'
+        }
+    )
+
+
 PROJECT_CONFIG = ProjectSettings()
+GOOGLE_CONFIG = GoogleClient()
 
 AUTHORIZATION_HEADER = {
     'Authorization': {

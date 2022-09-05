@@ -9,7 +9,7 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from authlib.integrations.flask_client import OAuth
 
-from application.core import PROJECT_CONFIG
+from application.core import PROJECT_CONFIG, GOOGLE_CONFIG
 
 app = Flask(__name__)
 app.config.from_object(PROJECT_CONFIG)
@@ -36,16 +36,4 @@ cache = redis.Redis(
     decode_responses=True
 )
 oauth = OAuth(app)
-google = oauth.register(
-    name='google',
-    client_id="143045074071-t3u81o285uibeopphiuaibbo6kgu86no.apps.googleusercontent.com",
-    client_secret="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",
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    access_token_url="https://oauth2.googleapis.com/token",
-    access_token_params=None,
-    authorize_url="https://accounts.google.com/o/oauth2/auth",
-    authorize_params=None,
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
-)
+google = oauth.register(**GOOGLE_CONFIG.dict())
