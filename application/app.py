@@ -1,17 +1,11 @@
-import click
-from flask_cli import with_appcontext
-
-from core import Config, swagger
-from extensions import app, db, docs
-from services.auth import create_root
+from application.core import swagger
+from application.extensions import app, db, docs, migrate
+from application.commands import fill_db, create_user
 
 
-@app.cli.command("create-root")
-@click.argument("password")
-@with_appcontext
-def create_user(password):
-    """Create root user"""
-    create_root(db, password)
+def init_cli_commands(flask_app):
+    flask_app.cli.add_command(fill_db)
+    flask_app.cli.add_command(create_user)
 
 
 def init_api(flask_app):
@@ -25,12 +19,9 @@ def init_api(flask_app):
 
 def create_app(flask_app):
     db.init_app(flask_app)
+    migrate.init_app(app, db)
     init_api(flask_app)
-    db.create_all()
-    from services.permissions import init_permissions, init_default_roles
-
-    init_permissions(db, Config)
-    init_default_roles(db, Config)
+    init_cli_commands(app)
 
     return flask_app
 

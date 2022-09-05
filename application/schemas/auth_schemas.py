@@ -2,13 +2,13 @@ from marshmallow import Schema, validate, ValidationError, validates_schema
 from marshmallow.fields import Str, Email
 
 __all__ = (
-    'SignUpForm',
-    'LoginForm',
-    'ChangeDataForm',
+    'SignUpSchema',
+    'LoginSchema',
+    'ChangeDataSchema',
 )
 
 
-class SignUpForm(Schema):
+class SignUpSchema(Schema):
     """Форма регистрации"""
 
     email = Email(required=True, validate=validate.Length(min=5, max=256))
@@ -21,14 +21,14 @@ class SignUpForm(Schema):
             raise ValidationError('Passwords password and password2 should be equal')
 
 
-class LoginForm(Schema):
+class LoginSchema(Schema):
     """Форма аутентификации"""
 
     email = Email(required=True, validate=validate.Length(min=5, max=256))
     password = Str(required=True, validate=validate.Length(min=6, max=256))
 
 
-class ChangeDataForm(Schema):
+class ChangeDataSchema(Schema):
     """Форма изменения данных пользователя"""
 
     email = Email(required=True, validate=validate.Length(min=5, max=256))

@@ -11,7 +11,7 @@ def validate_form(form=None):
         @wraps(func)
         def inner(*args, **kwargs):
             f = form()
-            if not (error := f.validate(request.json)):
+            if not (error := f.validate(request.get_json())):
                 return func(*args, **kwargs)
             errors: list = []
             incorrect_params: list = [i for i in error]

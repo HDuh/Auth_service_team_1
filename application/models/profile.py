@@ -2,8 +2,8 @@ import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
 
-from extensions import db
-from models.models_enums import Genders
+from application.extensions import db
+from application.models.models_enums import Genders
 
 __all__ = (
     'Profile',

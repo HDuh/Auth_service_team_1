@@ -1,11 +1,11 @@
-from api.v1.auth.auth import SignUp, Logout, Refresh, ChangeCredentials, Login
-from api.v1.auth.user import UserProfile, UserAuthHistory
-from api.v1.role.role import Roles, RoleList, UserRole
+from application.api.v1.auth.auth import SignUp, Logout, Refresh, ChangeCredentials, Login
+from application.api.v1.auth.user import UserProfile, UserAuthHistory
+from application.api.v1.role.role import Roles, RoleList, UserRole
 
 
 def registration(docs):
-    docs.register(Login, blueprint='auth')
     docs.register(SignUp, blueprint='auth')
+    docs.register(Login, blueprint='auth')
     docs.register(Logout, blueprint='auth')
     docs.register(Refresh, blueprint='auth')
     docs.register(ChangeCredentials, blueprint='auth')

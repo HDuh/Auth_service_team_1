@@ -2,22 +2,22 @@ from marshmallow import Schema, validate, ValidationError, validates_schema
 from marshmallow.fields import Str, List, Email
 
 __all__ = (
-    'RoleBase',
-    'RoleForm',
-    'UpdateRoleForm',
-    'UserRoleForm'
+    'RoleBaseSchema',
+    'RoleSchema',
+    'UpdateRoleSchema',
+    'UserRoleSchema'
 )
 
 
-class RoleBase(Schema):
-    role_name = Str(required=True, validate=validate.Length(min=3, max=128))
+class RoleBaseSchema(Schema):
+    role_name = Str(validate=validate.Length(min=3, max=40))
 
 
-class RoleForm(RoleBase):
+class RoleSchema(RoleBaseSchema):
     permissions = List(Str, required=True)
 
 
-class UpdateRoleForm(RoleBase):
+class UpdateRoleSchema(RoleBaseSchema):
     role_name = Str(required=True, validate=validate.Length(min=3, max=128))
     new_role_name = Str(required=True, validate=validate.Length(min=3, max=128))
     permissions = List(Str, required=True)
@@ -28,5 +28,5 @@ class UpdateRoleForm(RoleBase):
             raise ValidationError('Role name should be different')
 
 
-class UserRoleForm(RoleBase):
+class UserRoleSchema(RoleBaseSchema):
     email = Email(required=True, validate=validate.Length(min=5, max=256))

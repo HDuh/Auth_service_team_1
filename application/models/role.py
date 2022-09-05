@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
 
-from extensions import db
+from application.extensions import db
 from .transitional_models import role_permission_table
 
 __all__ = (
@@ -18,10 +18,9 @@ class Role(db.Model):
     permission = db.relationship(
         'Permission',
         secondary=role_permission_table,
-        backref='permission',
+        back_populates='role',
         lazy='dynamic',
         passive_deletes=True,
-        overlaps="role,role",
     )
 
     def __str__(self):
