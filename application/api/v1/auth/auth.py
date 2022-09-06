@@ -3,8 +3,6 @@ from http import HTTPStatus
 from flask import request
 from flask_apispec import doc, marshal_with, MethodResource, use_kwargs
 from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
     jwt_required,
     get_jwt_identity,
     get_jwt,
@@ -18,7 +16,7 @@ from application.models import User, AuthHistory, Profile, Role
 from application.models.models_enums import ActionsEnum
 from application.schemas import LoginSchema, SignUpSchema, ChangeDataSchema
 from application.schemas.responses_schemas import ResponseSchema
-from application.services import change_login, change_password, change_users_credentials, expired_time
+from application.services import change_login, change_password, change_users_credentials, expired_time, get_tokens
 from application.utils.decorators import validate_form
 
 
@@ -37,12 +35,7 @@ class Login(MethodResource, Resource):
         user = User.query.filter_by(email=body['email']).first()
 
         if user and check_password_hash(user.password, body['password']):
-            access_token = create_access_token(
-                identity={'user_id': str(user.id), 'roles': [role.role_name for role in user.role]},
-                fresh=True
-            )
-            refresh_token = create_refresh_token(identity=str(user.id))
-
+            access_token, refresh_token = get_tokens(user)
             history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
             db.session.add(history)
             db.session.commit()
@@ -128,13 +121,9 @@ class Refresh(MethodResource, Resource):
         cache.set(jwt_info['jti'], "", ex=expired_time(jwt_info['exp']))
 
         identify = get_jwt_identity()
-
         user = User.query.filter_by(id=identify).first()
-        access_token = create_access_token(
-            identity={'user_id': str(user.id), 'roles': [role.role_name for role in user.role]},
-            fresh=True
-        )
-        refresh_token = create_refresh_token(identity=identify)
+
+        access_token, refresh_token = get_tokens(user, identify)
         return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
 
