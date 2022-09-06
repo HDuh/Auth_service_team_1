@@ -4,4 +4,4 @@ from .profile import *
 from .role import *
 from .transitional_models import *
 from .user import *
-from .client import *
+from .provider import *
