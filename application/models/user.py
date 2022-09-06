@@ -18,6 +18,7 @@ class User(db.Model):
     email = db.Column(db.String(256), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
     is_active = db.Column(db.Boolean(True))
+    social_signup = db.Column(db.Boolean(False))
     data_joined = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     profile = db.relationship('Profile', backref='user', uselist=False)
@@ -34,6 +35,10 @@ class User(db.Model):
         secondary=user_role_table,
         backref='user',
         lazy='dynamic',
+    )
+    provider = db.relationship(
+        'Provider',
+        back_populates='user',
     )
 
     def __repr__(self):
