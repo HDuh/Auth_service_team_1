@@ -1,5 +1,4 @@
 from functools import lru_cache
-from typing import Any
 
 from dotenv import load_dotenv
 from pydantic import BaseSettings, Field
@@ -57,11 +56,9 @@ class GoogleClient(BaseSettings):
     name: str = Field('google')
     client_id: str = Field(..., env='GOOGLE_CLIENT_ID')
     client_secret: str = Field(..., env='GOOGLE_CLIENT_SECRET')
-    server_metadata_url: Any = Field(default='https://accounts.google.com/.well-known/openid-configuration'),
-    access_token_url: Any = Field(default='https://oauth2.googleapis.com/token'),
-    access_token_params: Any = Field(default=None),
-    authorize_url: Any = Field(default="https://accounts.google.com/o/oauth2/auth"),
-    authorize_params: Any = Field(default=None),
+    server_metadata_url: str = Field(..., env='GOOGLE_SERVER_METADATA_URL')
+    access_token_url: str = Field(..., env='GOOGLE_ACCESS_TOKEN_URL')
+    authorize_url: str = Field(env='GOOGLE_AUTHORIZE_URL')
     client_kwargs: dict = Field(
         {
             'scope': 'openid email profile'
