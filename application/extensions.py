@@ -7,8 +7,9 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+from authlib.integrations.flask_client import OAuth
 
-from application.core import PROJECT_CONFIG
+from application.core import PROJECT_CONFIG, GOOGLE_CONFIG
 
 app = Flask(__name__)
 app.config.from_object(PROJECT_CONFIG)
@@ -27,7 +28,6 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 api = Api(app)
 docs = FlaskApiSpec(app)
-
 jwt = JWTManager(app)
 cache = redis.Redis(
     host=PROJECT_CONFIG.CACHE_HOST,
@@ -35,3 +35,5 @@ cache = redis.Redis(
     db=0,
     decode_responses=True
 )
+oauth = OAuth(app)
+google = oauth.register(**GOOGLE_CONFIG.dict())
