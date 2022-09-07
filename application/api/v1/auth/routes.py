@@ -1,8 +1,8 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from application.api.v1.auth.social_auth import SocialProvider, SocialProviderAuth
 from .auth import Login, SignUp, Logout, Refresh, ChangeCredentials
+from .social_auth import SocialProvider, GoogleProviderAuth, YandexProviderAuth
 from .user import UserProfile, UserAuthHistory
 
 bp_auth = Blueprint('auth', __name__)
@@ -16,4 +16,5 @@ api.add_resource(UserProfile, '/user/profile')
 api.add_resource(UserAuthHistory, '/user/auth_history')
 api.add_resource(ChangeCredentials, '/change_auth_data')
 api.add_resource(SocialProvider, '/social/<string:provider_name>')
-api.add_resource(SocialProviderAuth, '/social/<string:provider_name>/auth')
+api.add_resource(GoogleProviderAuth, '/social/google/auth')
+api.add_resource(YandexProviderAuth, '/social/yandex/auth')

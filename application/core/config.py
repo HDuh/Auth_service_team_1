@@ -6,7 +6,8 @@ from pydantic import BaseSettings, Field
 __all__ = (
     'PROJECT_CONFIG',
     'AUTHORIZATION_HEADER',
-    'GOOGLE_CONFIG',
+    'GoogleClient',
+    'YandexClient'
 )
 load_dotenv()
 
@@ -56,9 +57,9 @@ class GoogleClient(BaseSettings):
     name: str = Field('google')
     client_id: str = Field(..., env='GOOGLE_CLIENT_ID')
     client_secret: str = Field(..., env='GOOGLE_CLIENT_SECRET')
-    server_metadata_url: str = Field(..., env='GOOGLE_SERVER_METADATA_URL')
-    access_token_url: str = Field(..., env='GOOGLE_ACCESS_TOKEN_URL')
-    authorize_url: str = Field(env='GOOGLE_AUTHORIZE_URL')
+    server_metadata_url: str = Field('https://accounts.google.com/.well-known/openid-configuration')
+    access_token_url: str = Field('https://oauth2.googleapis.com/token')
+    authorize_url: str = Field('https://accounts.google.com/o/oauth2/auth')
     client_kwargs: dict = Field(
         {
             'scope': 'openid email profile'
@@ -66,8 +67,16 @@ class GoogleClient(BaseSettings):
     )
 
 
+@lru_cache()
+class YandexClient(BaseSettings):
+    name: str = Field('yandex')
+    client_id: str = Field(..., env='YANDEX_CLIENT_ID')
+    client_secret: str = Field(..., env='YANDEX_CLIENT_SECRET')
+    access_token_url: str = Field('https://oauth.yandex.ru/token')
+    authorize_url: str = Field('https://oauth.yandex.ru/authorize')
+
+
 PROJECT_CONFIG = ProjectSettings()
-GOOGLE_CONFIG = GoogleClient()
 
 AUTHORIZATION_HEADER = {
     'Authorization': {
