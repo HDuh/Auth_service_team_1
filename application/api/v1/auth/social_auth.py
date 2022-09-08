@@ -22,10 +22,10 @@ class SocialProvider(Resource):
     @marshal_with(ResponseSchema, code=302, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     def get(self, provider_name: str):
-        if provider_name not in providers.keys():
+        if provider_name not in providers:
             abort(http_status_code=HTTPStatus.BAD_REQUEST, message=f'{provider_name} not supported')
 
-        redirect_uri = url_for('auth.socialproviderauth', _external=True, provider_name=provider_name)
+        redirect_uri = url_for(f'auth.{provider_name}providerauth', _external=True)
         return providers.get(provider_name).authorize_redirect(redirect_uri)
 
 
