@@ -75,6 +75,7 @@ class YandexClient(BaseSettings):
     client_secret: str = Field(..., env='YANDEX_CLIENT_SECRET')
     access_token_url: str = Field('https://oauth.yandex.ru/token')
     authorize_url: str = Field('https://oauth.yandex.ru/authorize')
+    userinfo_endpoint: str = Field('https://login.yandex.ru/info')
 
 
 @lru_cache()

@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+import requests
 from flask import url_for, request
 from flask_apispec import doc, marshal_with
 from flask_restful import Resource, abort
@@ -11,6 +12,9 @@ from application.models import Provider, User, AuthHistory, Role
 from application.models.models_enums import ActionsEnum
 from application.schemas.responses_schemas import ResponseSchema
 from application.services import get_tokens
+from application.services.auth import register_provider_user
+
+YANDEX_USER_INFO_URL = 'https://login.yandex.ru/info'
 
 
 class SocialProvider(Resource):
@@ -25,7 +29,7 @@ class SocialProvider(Resource):
         if provider_name not in providers:
             abort(http_status_code=HTTPStatus.BAD_REQUEST, message=f'{provider_name} not supported')
 
-        redirect_uri = url_for(f'auth.{provider_name}providerauth', _external=True)
+        redirect_uri = url_for(f'auth.{provider_name}providerauth', _external=True, provider_name=provider_name)
         return providers.get(provider_name).authorize_redirect(redirect_uri)
 
 
@@ -35,24 +39,21 @@ class GoogleProviderAuth(Resource):
         description='Auth through google',
         summary='User auth'
     )
-    @marshal_with(ResponseSchema, code=302, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     def get(self):
         token = providers.get('google').authorize_access_token()
         user_info = token['userinfo']
         provider = Provider.query.filter_by(id=int(user_info['sub'])).first()
         if not provider:
-            user = User(
+            user = register_provider_user(
                 email=user_info['email'],
-                password=generate_password_hash(user_info['sub']),
-                social_signup=True
+                uid=user_info['sub'],
+                provider='google',
+                request=request,
+                db=db,
+                role=PROJECT_CONFIG.DEFAULT_ROLES
             )
-            new_provider = Provider(id=int(user_info['sub']), user=user, provider_name='google')
-            history_signup = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
-            history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
-            role = Role.query.filter_by(role_name=PROJECT_CONFIG.DEFAULT_ROLES).first()
-            user.role.append(role)
-            db.session.add_all([user, new_provider, history_signup, history_login])
         else:
             user = provider.user
             history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
@@ -69,14 +70,28 @@ class YandexProviderAuth(Resource):
         description='Auth through yandex',
         summary='User auth'
     )
+    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
+    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     def get(self):
-        token = providers.get('yandex').authorize_access_token()
-        # user_info = token['userinfo']
-        # TODO: доп запрос для получения информации о пользователе
-        # TODO: вынести отдельно логику добавления пользователя в бд
+        user_info = providers.get('yandex').userinfo()
+        provider = Provider.query.filter_by(id=int(user_info['id'])).first()
+        if not provider:
+            user = register_provider_user(
+                email=user_info['default_email'],
+                uid=user_info['id'],
+                provider='yandex',
+                request=request,
+                db=db,
+                role=PROJECT_CONFIG.DEFAULT_ROLES
+            )
+        else:
+            user = provider.user
+            history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+            db.session.add(history_login)
 
-        return {}, HTTPStatus.OK
-        # return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
+        db.session.commit()
+        access_token, refresh_token = get_tokens(user)
+        return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
 
 class MailProviderAuth(Resource):
