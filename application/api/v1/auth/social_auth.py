@@ -1,20 +1,16 @@
 from http import HTTPStatus
 
-import requests
 from flask import url_for, request
 from flask_apispec import doc, marshal_with
 from flask_restful import Resource, abort
-from werkzeug.security import generate_password_hash
 
 from application.core import PROJECT_CONFIG
 from application.extensions import providers, db
-from application.models import Provider, User, AuthHistory, Role
+from application.models import Provider, AuthHistory
 from application.models.models_enums import ActionsEnum
 from application.schemas.responses_schemas import ResponseSchema
 from application.services import get_tokens
 from application.services.auth import register_provider_user
-
-YANDEX_USER_INFO_URL = 'https://login.yandex.ru/info'
 
 
 class SocialProvider(Resource):

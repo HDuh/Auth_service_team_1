@@ -83,8 +83,8 @@ class MailClient(BaseSettings):
     name: str = Field('mail')
     client_id: str = Field(..., env='MAIL_CLIENT_ID')
     client_secret: str = Field(..., env='MAIL_CLIENT_SECRET')
-    access_token_url: str = Field('https://oauth.mail.ru/token')
-    authorize_url: str = Field('https://oauth.mail.ru/login')
+    access_token_url: str = Field('https://connect.mail.ru/oauth/token')
+    authorize_url: str = Field('https://connect.mail.ru/oauth/authorize')
     userinfo_endpoint: str = Field('https://oauth.mail.ru/userinfo')
 
 
