@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 
-from application.core import PROJECT_CONFIG, GoogleClient, YandexClient
+from application.core import PROJECT_CONFIG, GoogleClient, YandexClient, MailClient
 
 app = Flask(__name__)
 app.config.from_object(PROJECT_CONFIG)
@@ -39,5 +39,6 @@ cache = redis.Redis(
 oauth = OAuth(app)
 providers = {
     'google': oauth.register(**GoogleClient().dict()),
-    'yandex': oauth.register(**YandexClient().dict())
+    'yandex': oauth.register(**YandexClient().dict()),
+    'mail': oauth.register(**MailClient().dict()),
 }
