@@ -77,11 +77,14 @@ class YandexProviderAuth(Resource):
 
         return {}, HTTPStatus.OK
         # return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
-# TODO: Описать провайдеров в extensions (гугл, яндекс, мейл).
-# TODO: Проработать пайплайн авторизации:
-#   1. получить токен и юзеринфо
-#   2. проверить наличие провайдера в БД:
-#      2.1 Если провайдер есть в БД, то получить юзера. Отдать токены
-#      2.2 Если провайдера нет в БД, получить данные пользователя из токена.
-#          Создать пользователя (поставить флаг, что зареган через сторонний сервис.). При смене пароля мы не запрашиваем у пользователя old_password.
-#          Добавить провайдера в БД. Авторизовать пользователя (отдать токены).
+
+
+class MailProviderAuth(Resource):
+    @doc(
+        tags=['Mail'],
+        description='Auth through mail',
+        summary='User auth'
+    )
+    def get(self):
+        token = providers.get('mail').authorize_access_token()
+        userinfo = providers.get('mail').userinfo()

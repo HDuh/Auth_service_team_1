@@ -7,7 +7,8 @@ __all__ = (
     'PROJECT_CONFIG',
     'AUTHORIZATION_HEADER',
     'GoogleClient',
-    'YandexClient'
+    'YandexClient',
+    'MailClient',
 )
 load_dotenv()
 
@@ -74,6 +75,16 @@ class YandexClient(BaseSettings):
     client_secret: str = Field(..., env='YANDEX_CLIENT_SECRET')
     access_token_url: str = Field('https://oauth.yandex.ru/token')
     authorize_url: str = Field('https://oauth.yandex.ru/authorize')
+
+
+@lru_cache()
+class MailClient(BaseSettings):
+    name: str = Field('mail')
+    client_id: str = Field(..., env='MAIL_CLIENT_ID')
+    client_secret: str = Field(..., env='MAIL_CLIENT_SECRET')
+    access_token_url: str = Field('https://oauth.mail.ru/token')
+    authorize_url: str = Field('https://oauth.mail.ru/login')
+    userinfo_endpoint: str = Field('https://oauth.mail.ru/userinfo')
 
 
 PROJECT_CONFIG = ProjectSettings()
