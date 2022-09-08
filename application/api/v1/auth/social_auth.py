@@ -4,10 +4,11 @@ import requests
 from flask import url_for, request
 from flask_apispec import doc, marshal_with
 from flask_restful import Resource, abort
+from werkzeug.security import generate_password_hash
 
 from application.core import PROJECT_CONFIG
 from application.extensions import providers, db
-from application.models import Provider, AuthHistory
+from application.models import Provider, User, AuthHistory, Role
 from application.models.models_enums import ActionsEnum
 from application.schemas.responses_schemas import ResponseSchema
 from application.services import get_tokens
@@ -91,3 +92,14 @@ class YandexProviderAuth(Resource):
         db.session.commit()
         access_token, refresh_token = get_tokens(user)
         return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
+
+
+class MailProviderAuth(Resource):
+    @doc(
+        tags=['Mail'],
+        description='Auth through mail',
+        summary='User auth'
+    )
+    def get(self):
+        token = providers.get('mail').authorize_access_token()
+        userinfo = providers.get('mail').userinfo()
