@@ -25,7 +25,7 @@ class SocialProvider(Resource):
     @marshal_with(ResponseSchema, code=302, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     def get(self, provider_name: str):
-        if provider_name not in providers.keys():
+        if provider_name not in providers:
             abort(http_status_code=HTTPStatus.BAD_REQUEST, message=f'{provider_name} not supported')
 
         redirect_uri = url_for(f'auth.{provider_name}providerauth', _external=True, provider_name=provider_name)
@@ -72,10 +72,7 @@ class YandexProviderAuth(Resource):
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     def get(self):
-        token = providers.get('yandex').authorize_access_token()
-        headers = {'Authorization': f'OAuth {token.get("access_token")}'}
-        response = requests.get(YANDEX_USER_INFO_URL, headers=headers, timeout=30)
-        user_info = response.json()
+        user_info = providers.get('yandex').userinfo()
         provider = Provider.query.filter_by(id=int(user_info['id'])).first()
         if not provider:
             user = register_provider_user(
