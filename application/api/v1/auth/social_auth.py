@@ -25,7 +25,7 @@ class SocialProvider(Resource):
         if provider_name not in providers:
             abort(http_status_code=HTTPStatus.BAD_REQUEST, message=f'{provider_name} not supported')
 
-        redirect_uri = url_for(f'auth.{provider_name}providerauth', _external=True, provider_name=provider_name)
+        redirect_uri = url_for(f'auth.{provider_name}providerauth', _external=True)
         return providers.get(provider_name).authorize_redirect(redirect_uri)
 
 
@@ -69,7 +69,9 @@ class YandexProviderAuth(Resource):
     @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
     @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     def get(self):
-        user_info = providers.get('yandex').userinfo()
+        yandex = providers.get('yandex')
+        token = yandex.authorize_access_token()
+        user_info = yandex.userinfo(params=token)
         provider = Provider.query.filter_by(id=int(user_info['id'])).first()
         if not provider:
             user = register_provider_user(
@@ -97,5 +99,24 @@ class MailProviderAuth(Resource):
         summary='User auth'
     )
     def get(self):
-        token = providers.get('mail').authorize_access_token()
-        userinfo = providers.get('mail').userinfo()
+        mail = providers.get('mail')
+        token = mail.authorize_access_token()
+        user_info = mail.userinfo(params={'access_token': token['access_token']})
+        provider = Provider.query.filter_by(id=int(user_info['id'])).first()
+        if not provider:
+            user = register_provider_user(
+                email=user_info['email'],
+                uid=user_info['id'],
+                provider='mail',
+                request=request,
+                db=db,
+                role=PROJECT_CONFIG.DEFAULT_ROLES
+            )
+        else:
+            user = provider.user
+            history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+            db.session.add(history_login)
+
+        db.session.commit()
+        access_token, refresh_token = get_tokens(user)
+        return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
