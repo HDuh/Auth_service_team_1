@@ -11,8 +11,8 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - "5432:5432"
-    networks:
-      - apinetwork
+#    networks:
+#      - apinetwork
 
   redis:
     container_name: redis
@@ -24,9 +24,9 @@ services:
       - "6379:6379"
     volumes:
       - ./redis:/data
-    networks:
-      - apinetwork
+#    networks:
+#      - apinetwork
 
-networks:
-  apinetwork:
-    driver: bridge
+#networks:
+#  apinetwork:
+#    driver: bridge

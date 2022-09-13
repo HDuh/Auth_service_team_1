@@ -8,7 +8,7 @@ from marshmallow.fields import Int
 from application.core import AUTHORIZATION_HEADER
 from application.models import User
 from application.schemas.responses_schemas import ResponseSchema, AuthHistoryResponse, UserProfileResponse
-from utils.decorators import role_access
+from application.utils.decorators import role_access
 
 
 class UserProfile(MethodResource, Resource):

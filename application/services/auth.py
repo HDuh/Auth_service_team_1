@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.models import User, AuthHistory, Profile, Role
+from application.models import User, AuthHistory, Profile, Role, Provider
 from application.models.models_enums import ActionsEnum
 
 __all__ = (
@@ -11,6 +11,7 @@ __all__ = (
     'change_password',
     'change_users_credentials',
     'create_root',
+    'register_provider_user'
 )
 
 
@@ -76,3 +77,18 @@ def create_root(db, password):
         user.role.append(role)
 
     db.session.commit()
+
+
+def register_provider_user(email, uid, provider, request, db, role):
+    user = User(
+        email=email,
+        password=generate_password_hash(uid),
+        social_signup=True
+    )
+    new_provider = Provider(id=int(uid), user=user, provider_name=provider)
+    history_signup = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
+    history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+    role = Role.query.filter_by(role_name=role).first()
+    user.role.append(role)
+    db.session.add_all([user, new_provider, history_signup, history_login])
+    return user
