@@ -28,7 +28,7 @@ services:
     restart: always
     build:
       context: ../../.
-      dockerfile: Dockerfile
+      dockerfile: ../../application/Dockerfile
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}

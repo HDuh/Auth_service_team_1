@@ -7,7 +7,7 @@ __all__ = (
 
 from flask_jwt_extended import create_access_token, create_refresh_token
 
-from application.models import User
+from models import User
 
 
 def expired_time(jwt_exp: int) -> int:

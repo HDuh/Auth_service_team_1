@@ -1,6 +1,6 @@
-from application.core import swagger
-from application.extensions import app, db, docs, migrate
-from application.commands import fill_db, create_user
+from core import swagger
+from extensions import app, db, docs, migrate
+from commands import fill_db, create_user
 
 
 def init_cli_commands(flask_app):

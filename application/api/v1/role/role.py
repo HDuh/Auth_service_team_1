@@ -5,14 +5,14 @@ from flask_apispec import MethodResource, marshal_with, doc, use_kwargs
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 
-from application.core import AUTHORIZATION_HEADER
-from application.extensions import db
-from application.models import Role, User, Permission
-from application.schemas import RoleSchema, UpdateRoleSchema
-from application.schemas.responses_schemas import ResponseSchema
-from application.schemas.role_schemas import RoleBaseSchema, UserRoleSchema
-from application.services.permissions import is_user_permissions_exist, add_permissions
-from application.utils.decorators import validate_form, role_access
+from core import AUTHORIZATION_HEADER
+from extensions import db
+from models import Role, User, Permission
+from schemas import RoleSchema, UpdateRoleSchema
+from schemas.responses_schemas import ResponseSchema
+from schemas.role_schemas import RoleBaseSchema, UserRoleSchema
+from services.permissions import is_user_permissions_exist, add_permissions
+from utils.decorators import validate_form, role_access
 
 
 class Roles(MethodResource, Resource):

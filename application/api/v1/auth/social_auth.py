@@ -4,13 +4,13 @@ from flask import url_for, request
 from flask_apispec import doc, marshal_with
 from flask_restful import Resource, abort
 
-from application.core import PROJECT_CONFIG
-from application.extensions import providers, db
-from application.models import Provider, AuthHistory
-from application.models.models_enums import ActionsEnum
-from application.schemas.responses_schemas import ResponseSchema
-from application.services import get_tokens
-from application.services.auth import register_provider_user
+from core import PROJECT_CONFIG
+from extensions import providers, db
+from models import Provider, AuthHistory
+from models.models_enums import ActionsEnum
+from schemas.responses_schemas import ResponseSchema
+from services import get_tokens
+from services.auth import register_provider_user
 
 
 class SocialProvider(Resource):

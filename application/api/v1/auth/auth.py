@@ -10,14 +10,14 @@ from flask_jwt_extended import (
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.core import PROJECT_CONFIG, AUTHORIZATION_HEADER
-from application.extensions import db, cache
-from application.models import User, AuthHistory, Profile, Role
-from application.models.models_enums import ActionsEnum
-from application.schemas import LoginSchema, SignUpSchema, ChangeDataSchema
-from application.schemas.responses_schemas import ResponseSchema
-from application.services import change_login, change_password, change_users_credentials, expired_time, get_tokens
-from application.utils.decorators import validate_form
+from core import PROJECT_CONFIG, AUTHORIZATION_HEADER
+from extensions import db, cache
+from models import User, AuthHistory, Profile, Role
+from models.models_enums import ActionsEnum
+from schemas import LoginSchema, SignUpSchema, ChangeDataSchema
+from schemas.responses_schemas import ResponseSchema
+from services import change_login, change_password, change_users_credentials, expired_time, get_tokens
+from utils.decorators import validate_form
 
 
 class Login(MethodResource, Resource):

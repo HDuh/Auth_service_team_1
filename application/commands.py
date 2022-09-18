@@ -2,9 +2,9 @@ import click
 from flask_cli import with_appcontext
 from sqlalchemy.exc import ProgrammingError
 
-from application.core import PROJECT_CONFIG
-from application.extensions import db, app
-from application.services import create_root
+from core import PROJECT_CONFIG
+from extensions import db, app
+from services import create_root
 
 
 @app.cli.command("create-root")

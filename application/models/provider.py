@@ -1,6 +1,6 @@
 from sqlalchemy.dialects.postgresql import UUID
 
-from application.extensions import db
+from extensions import db
 
 __all__ = (
     'Provider',
