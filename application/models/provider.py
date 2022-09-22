@@ -10,7 +10,7 @@ __all__ = (
 class Provider(db.Model):
     __tablename__ = 'provider'
 
-    id = db.Column(db.Numeric, primary_key=True)
+    id = db.Column(db.String, primary_key=True)
     user_id = db.Column(
         UUID(as_uuid=True), db.ForeignKey('user.id', ondelete='CASCADE')
     )

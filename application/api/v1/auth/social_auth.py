@@ -40,7 +40,7 @@ class GoogleProviderAuth(Resource):
     def get(self):
         token = providers.get('google').authorize_access_token()
         user_info = token['userinfo']
-        provider = Provider.query.filter_by(id=int(user_info['sub'])).first()
+        provider = Provider.query.filter_by(id=user_info['sub']).first()
         if not provider:
             user = register_provider_user(
                 email=user_info['email'],
@@ -72,7 +72,7 @@ class YandexProviderAuth(Resource):
         yandex = providers.get('yandex')
         token = yandex.authorize_access_token()
         user_info = yandex.userinfo(params=token)
-        provider = Provider.query.filter_by(id=int(user_info['id'])).first()
+        provider = Provider.query.filter_by(id=user_info['id']).first()
         if not provider:
             user = register_provider_user(
                 email=user_info['default_email'],
@@ -102,7 +102,7 @@ class MailProviderAuth(Resource):
         mail = providers.get('mail')
         token = mail.authorize_access_token()
         user_info = mail.userinfo(params={'access_token': token['access_token']})
-        provider = Provider.query.filter_by(id=int(user_info['id'])).first()
+        provider = Provider.query.filter_by(id=user_info['id']).first()
         if not provider:
             user = register_provider_user(
                 email=user_info['email'],
