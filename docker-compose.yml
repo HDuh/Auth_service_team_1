@@ -9,8 +9,8 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-    networks:
-      - apinetwork
+#    networks:
+#      - apinetwork
 
   redis:
     container_name: redis-auth
@@ -20,8 +20,8 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - ./redis:/data
-    networks:
-      - apinetwork
+#    networks:
+#      - apinetwork
 
   nginx:
     container_name: nginx-auth
@@ -38,8 +38,8 @@ services:
       - auth-api
     ports:
       - "80:80"
-    networks:
-      - apinetwork
+#    networks:
+#      - apinetwork
 
   auth-api:
     container_name: flask-auth-api
@@ -48,12 +48,20 @@ services:
       context: ./application
       dockerfile: Dockerfile
     env_file: .env
-    networks:
-      - apinetwork
+#    networks:
+#      - apinetwork
     depends_on:
       - postgres
       - redis
 
-networks:
-  apinetwork:
-    driver: bridge
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger-auth
+    restart: always
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+
+#networks:
+#  apinetwork:
+#    driver: bridge
