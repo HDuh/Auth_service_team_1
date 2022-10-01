@@ -8,13 +8,12 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
-from jaeger_client import Config
-from flask_opentracing import FlaskTracer
-
-from core import PROJECT_CONFIG, GoogleClient, YandexClient, MailClient
+from core import PROJECT_CONFIG, GoogleClient, YandexClient, MailClient, configure_tracer
 
 app = Flask(__name__)
+
 app.config.from_object(PROJECT_CONFIG)
 app.config.update({
     'APISPEC_SPEC': APISpec(
@@ -47,21 +46,13 @@ providers = {
 }
 
 
-# @app.before_request
-# def before_request():
-#     request_id = request.headers.get('X-Request-Id')
-#     if not request_id:
-#         raise RuntimeError('request id is required')
+@app.before_request
+def before_request():
+    request_id = request.headers.get('X-Request-Id')
+    if not request_id:
+        raise RuntimeError('request id is required')
 
 
-def initialize_tracer():
-    """ Tracing setup method """
-    config = Config(
-        config={
-            'sampler': {'type': 'const', 'param': 1},
-        },
-        service_name='auth-service')
-    return config.initialize_tracer()
-
-
-flaskTracer = FlaskTracer(lambda: initialize_tracer(), True, app)
+# create_tracer
+configure_tracer(host=PROJECT_CONFIG.JAEGER_AGENT_HOST_NAME, port=PROJECT_CONFIG.JAEGER_AGENT_PORT)
+FlaskInstrumentor().instrument_app(app)

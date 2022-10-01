@@ -46,8 +46,9 @@ class ProjectSettings(BaseSettings):
     SECRET_KEY: str = Field(..., env='SECRET_KEY')
     WTF_CSRF_ENABLED: bool
 
-    # OAUTHLIB_INSECURE_TRANSPORT = 1
-    # OAUTHLIB_RELAX_TOKEN_SCOPE = 1
+    # tracer
+    JAEGER_AGENT_HOST_NAME: str = Field(..., env='JAEGER_AGENT_HOST_NAME')
+    JAEGER_AGENT_PORT: int = Field(..., env='JAEGER_AGENT_PORT')
 
     class Config:
         case_sensitive = True
