@@ -1,26 +1,20 @@
 from http import HTTPStatus
 
 from flask import url_for, request
-from flask_apispec import doc, marshal_with
 from flask_restful import Resource, abort
 
 from core import PROJECT_CONFIG
 from extensions import providers, db
 from models import Provider, AuthHistory
 from models.models_enums import ActionsEnum
-from schemas.responses_schemas import ResponseSchema
 from services import get_tokens
 from services.auth import register_provider_user
 
 
 class SocialProvider(Resource):
-    @doc(
-        tags=['Social auth'],
-        description='Auth through external service',
-        summary='User auth'
-    )
-    @marshal_with(ResponseSchema, code=302, description='Server response', apply=False)
-    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
+    """Не знаем как добавить это в swagger.
+    Выполняется authorize_redirect, который возвращает страницу для выбора профиля."""
+
     def get(self, provider_name: str):
         if provider_name not in providers:
             abort(http_status_code=HTTPStatus.BAD_REQUEST, message=f'{provider_name} not supported')
@@ -30,13 +24,6 @@ class SocialProvider(Resource):
 
 
 class GoogleProviderAuth(Resource):
-    @doc(
-        tags=['Google'],
-        description='Auth through google',
-        summary='User auth'
-    )
-    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
-    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     def get(self):
         token = providers.get('google').authorize_access_token()
         user_info = token['userinfo']
@@ -61,13 +48,6 @@ class GoogleProviderAuth(Resource):
 
 
 class YandexProviderAuth(Resource):
-    @doc(
-        tags=['Yandex'],
-        description='Auth through yandex',
-        summary='User auth'
-    )
-    @marshal_with(ResponseSchema, code=200, description='Server response', apply=False)
-    @marshal_with(ResponseSchema, code=400, description='Bad server response', apply=False)
     def get(self):
         yandex = providers.get('yandex')
         token = yandex.authorize_access_token()
@@ -93,11 +73,6 @@ class YandexProviderAuth(Resource):
 
 
 class MailProviderAuth(Resource):
-    @doc(
-        tags=['Mail'],
-        description='Auth through mail',
-        summary='User auth'
-    )
     def get(self):
         mail = providers.get('mail')
         token = mail.authorize_access_token()

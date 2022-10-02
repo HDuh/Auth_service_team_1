@@ -1,4 +1,4 @@
-version: "3"
+version: "3.9"
 
 services:
   postgres:
@@ -9,37 +9,29 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-    networks:
-      - apinetwork
 
   redis:
     container_name: redis-auth
     image: redis:${REDIS_VERSION}-alpine
     restart: always
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+    env_file:
+      - .env
     volumes:
       - ./redis:/data
-    networks:
-      - apinetwork
 
   nginx:
     container_name: nginx-auth
     image: nginx:${NGINX_VERSION}-alpine
     restart: always
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - .env
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/configs:/etc/nginx/conf.d:ro
+      - ./nginx/configs/auth.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - auth-api
     ports:
       - "80:80"
-    networks:
-      - apinetwork
 
   auth-api:
     container_name: flask-auth-api
@@ -48,12 +40,14 @@ services:
       context: ./application
       dockerfile: Dockerfile
     env_file: .env
-    networks:
-      - apinetwork
     depends_on:
       - postgres
       - redis
 
-networks:
-  apinetwork:
-    driver: bridge
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger-auth
+    restart: always
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"

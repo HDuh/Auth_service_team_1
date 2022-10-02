@@ -40,4 +40,3 @@ class Config:
     DEFAULT_ROLES = "regular_user"
     BASE_PERMISSIONS = ['base_content', 'premium_content', 'change_roles', 'root', 'likes', 'comments']
     BASE_ROLES = [DEFAULT_ROLES, "admin"]
-    

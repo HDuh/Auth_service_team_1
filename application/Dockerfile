@@ -3,11 +3,7 @@ FROM python:3.10-buster
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-#EXPOSE 5432:5432
-#EXPOSE 6379:6379
-
 WORKDIR /usr/application
-
 
 COPY ./requirements.txt .
 

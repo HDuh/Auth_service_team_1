@@ -55,7 +55,7 @@ def upgrade():
     sa.Column('first_name', sa.String(length=128), nullable=True),
     sa.Column('last_name', sa.String(length=128), nullable=True),
     sa.Column('age', sa.Integer(), nullable=True),
-    sa.Column('gender', sa.Enum('MALE', 'FEMALE', name='genders_names'), nullable=False),
+    sa.Column('gender', sa.Enum('MALE', 'FEMALE', name='genders_names'), nullable=True),
     sa.Column('phone', sa.String(length=15), nullable=True),
     sa.Column('city', sa.String(length=128), nullable=True),
     sa.Column('country', sa.String(length=128), nullable=True),

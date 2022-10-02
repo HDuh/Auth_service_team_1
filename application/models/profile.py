@@ -18,7 +18,7 @@ class Profile(db.Model):
     first_name = db.Column(db.String(128))
     last_name = db.Column(db.String(128))
     age = db.Column(db.Integer)
-    gender = db.Column(db.Enum(Genders, name='genders_enum', create_type=False), nullable=False)
+    gender = db.Column(db.Enum(Genders, name='genders_enum', create_type=False), nullable=True)
     phone = db.Column(db.String(15))
     city = db.Column(db.String(128))
     country = db.Column(db.String(128))
