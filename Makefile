@@ -27,3 +27,6 @@ logs:
 
 init_db:
 	docker exec -it flask-auth-api flask db upgrade && docker exec -it flask-auth-api flask fill-db
+
+create_super_user:
+	docker exec -it flask-auth-api flask create-root $(password)
