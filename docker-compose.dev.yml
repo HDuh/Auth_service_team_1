@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  postgres:
+    container_name: postgres-auth
+    image: postgres:${PG_VERSION}-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+
+  redis:
+    container_name: redis-auth
+    image: redis:${REDIS_VERSION}-alpine
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis:/data
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    restart: always
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
