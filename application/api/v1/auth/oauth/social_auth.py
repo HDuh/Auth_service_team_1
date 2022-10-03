@@ -53,7 +53,11 @@ class MailOAuth(OAuthProvider):
     def callback(self):
         token = self.service.authorize_access_token()
         user_info = self.service.userinfo(params={'access_token': token['access_token']})
-        provider = Provider.query.filter_by(id=user_info['id']).first()
+        provider = Provider.query\
+            .filter_by(id=user_info['id'])\
+            .filter_by(provider_name=self.provider_name)\
+            .first()
+
         if not provider:
             user = register_provider_user(
                 email=user_info['email'],
@@ -80,7 +84,10 @@ class YandexOAuth(OAuthProvider):
     def callback(self):
         token = self.service.authorize_access_token()
         user_info = self.service.userinfo(params=token)
-        provider = Provider.query.filter_by(id=user_info['id']).first()
+        provider = Provider.query\
+            .filter_by(id=user_info['id'])\
+            .filter_by(provider_name=self.provider_name)\
+            .first()
         if not provider:
             user = register_provider_user(
                 email=user_info['default_email'],
@@ -107,7 +114,10 @@ class GoogleOAuth(OAuthProvider):
     def callback(self):
         token = self.service.authorize_access_token()
         user_info = token['userinfo']
-        provider = Provider.query.filter_by(id=user_info['sub']).first()
+        provider = Provider.query\
+            .filter_by(id=user_info['sub'])\
+            .filter_by(provider_name=self.provider_name)\
+            .first()
         if not provider:
             user = register_provider_user(
                 email=user_info['email'],
