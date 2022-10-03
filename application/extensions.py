@@ -48,11 +48,11 @@ providers = {
 }
 
 
-@app.before_request
-def before_request():
-    request_id = request.headers.get('X-Request-Id')
-    if not request_id:
-        raise RuntimeError('request id is required')
+# @app.before_request
+# def before_request():
+#     request_id = request.headers.get('X-Request-Id')
+#     if not request_id:
+#         raise RuntimeError('request id is required')
 
 
 # create_tracer
