@@ -1,6 +1,3 @@
-# Auth service team 23
-https://github.com/HDuh/Auth_service_team_1
-
 ## Схема БД:
 
 ![изображение](https://user-images.githubusercontent.com/66841202/192105634-dd904822-c824-4242-92d4-e4c6d427d104.png)
