@@ -35,6 +35,7 @@ class ProjectSettings(BaseSettings):
     # cache
     CACHE_HOST: str = Field(..., env='REDIS_HOST')
     CACHE_PORT: int = Field(..., env='REDIS_PORT')
+
     # jwt
     JWT_BLACKLIST_ENABLED: bool
     JWT_BLACKLIST_TOKEN_CHECKS: list = ['access', 'refresh']
@@ -49,6 +50,9 @@ class ProjectSettings(BaseSettings):
     # tracer
     JAEGER_AGENT_HOST_NAME: str = Field(..., env='JAEGER_AGENT_HOST_NAME')
     JAEGER_AGENT_PORT: int = Field(..., env='JAEGER_AGENT_PORT')
+
+    # limiter
+    LIMITER_DB: int = Field("3", env='LIMITER_DB')
 
     class Config:
         case_sensitive = True

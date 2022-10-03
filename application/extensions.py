@@ -62,5 +62,6 @@ FlaskInstrumentor().instrument_app(app)
 # create limiter
 limiter = Limiter(key_func=get_remote_address,
                   default_limits=['300/day', '60/hour', '10/minute', '1/second'],
-                  storage_uri=f'redis://{PROJECT_CONFIG.CACHE_HOST}:{PROJECT_CONFIG.CACHE_PORT}')
+                  storage_uri=f'redis://{PROJECT_CONFIG.CACHE_HOST}:{PROJECT_CONFIG.CACHE_PORT}'
+                              f'/{PROJECT_CONFIG.LIMITER_DB}')
 limiter.init_app(app)
