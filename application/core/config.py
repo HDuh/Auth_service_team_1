@@ -10,6 +10,7 @@ __all__ = (
     'YandexClient',
     'MailClient',
 )
+
 load_dotenv()
 
 
