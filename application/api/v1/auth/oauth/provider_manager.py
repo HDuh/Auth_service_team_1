@@ -6,6 +6,7 @@ from flask import url_for
 
 @dataclass
 class ProviderManager:
+    """Менеджер провайдеров"""
     provider: Any
 
     def authorize(self) -> None:
