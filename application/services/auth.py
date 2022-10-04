@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from models import User, AuthHistory, Profile, Role, Provider
 from models.models_enums import ActionsEnum
+from utils.user_agent_pars import get_browser
 
 __all__ = (
     'change_login',
@@ -20,7 +21,9 @@ def change_login(db, user: User, body: dict):
 
     if not User.query.filter_by(email=body['email']).first():
         user.email = body['email']
-        history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.CHANGE_LOGIN)
+        user_agent = request.user_agent.string
+        browser = get_browser(user_agent)
+        history = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.CHANGE_LOGIN, browser=browser)
 
         db.session.add(history)
         db.session.commit()
@@ -34,7 +37,9 @@ def change_password(db, user: User, body: dict):
     """Логика смены пароля"""
     if not check_password_hash(user.password, body['new_password']):
         user.password = generate_password_hash(body['new_password'])
-        history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.CHANGE_PASSWORD)
+        user_agent = request.user_agent.string
+        browser = get_browser(user_agent)
+        history = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.CHANGE_PASSWORD, browser=browser)
 
         db.session.add(history)
         db.session.commit()
@@ -56,9 +61,12 @@ def change_users_credentials(db, user: User, body: dict):
     else:
         user.email = body['email']
         user.password = generate_password_hash(body['new_password'])
+        user_agent = request.user_agent.string
+        browser = get_browser(user_agent)
+
         history = [
-            AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.CHANGE_LOGIN),
-            AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.CHANGE_PASSWORD),
+            AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.CHANGE_LOGIN, browser=browser),
+            AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.CHANGE_PASSWORD, browser=browser),
         ]
 
         db.session.add_all(history)
@@ -86,8 +94,11 @@ def register_provider_user(email, uid, provider, request, db, role):
         social_signup=True
     )
     new_provider = Provider(id=int(uid), user=user, provider_name=provider)
-    history_signup = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
-    history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+    user_agent = request.user_agent.string
+    browser = get_browser(user_agent)
+
+    history_signup = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.SIGNUP, browser=browser)
+    history_login = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.LOGIN, browser=browser)
     role = Role.query.filter_by(role_name=role).first()
     user.role.append(role)
     db.session.add_all([user, new_provider, history_signup, history_login])

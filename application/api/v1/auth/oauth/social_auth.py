@@ -7,6 +7,7 @@ from extensions import providers, db
 from models import Provider, AuthHistory
 from models.models_enums import ActionsEnum
 from services import register_provider_user, get_tokens
+from utils.user_agent_pars import get_browser
 
 
 class OAuthProvider:
@@ -69,7 +70,9 @@ class MailOAuth(OAuthProvider):
             )
         else:
             user = provider.user
-            history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+            user_agent = request.user_agent.string
+            browser = get_browser(user_agent)
+            history_login = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.LOGIN, browser=browser)
             db.session.add(history_login)
 
         db.session.commit()
@@ -99,7 +102,9 @@ class YandexOAuth(OAuthProvider):
             )
         else:
             user = provider.user
-            history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+            user_agent = request.user_agent.string
+            browser = get_browser(user_agent)
+            history_login = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.LOGIN, browser=browser)
             db.session.add(history_login)
 
         db.session.commit()
@@ -129,7 +134,9 @@ class GoogleOAuth(OAuthProvider):
             )
         else:
             user = provider.user
-            history_login = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+            user_agent = request.user_agent.string
+            browser = get_browser(user_agent)
+            history_login = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.LOGIN, browser=browser)
             db.session.add(history_login)
 
         db.session.commit()

@@ -18,6 +18,7 @@ from schemas import LoginSchema, SignUpSchema, ChangeDataSchema
 from schemas.responses_schemas import ResponseSchema
 from services import change_login, change_password, change_users_credentials, expired_time, get_tokens
 from utils.decorators import validate_form
+from utils.user_agent_pars import get_browser
 
 
 class Login(MethodResource, Resource):
@@ -36,7 +37,9 @@ class Login(MethodResource, Resource):
 
         if user and check_password_hash(user.password, body['password']):
             access_token, refresh_token = get_tokens(user)
-            history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGIN)
+            user_agent = request.user_agent.string
+            browser = get_browser(user_agent)
+            history = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.LOGIN, browser=browser)
             db.session.add(history)
             db.session.commit()
 
@@ -65,7 +68,9 @@ class SignUp(MethodResource, Resource):
         if not user:
             new_user = User(email=email, password=generate_password_hash(body['password']), is_active=True)
             profile = Profile(user=new_user)
-            history = AuthHistory(user=new_user, user_agent=request.user_agent.string, action=ActionsEnum.SIGNUP)
+            user_agent = request.user_agent.string
+            browser = get_browser(user_agent)
+            history = AuthHistory(user=new_user, user_agent=user_agent, action=ActionsEnum.SIGNUP, browser=browser)
 
             db.session.add_all([new_user, profile, history])
             # дефолтная роль
@@ -97,8 +102,10 @@ class Logout(MethodResource, Resource):
 
         identify = get_jwt_identity()
         user = User.query.filter_by(id=identify.get('user_id')).first()
-        history = AuthHistory(user=user, user_agent=request.user_agent.string, action=ActionsEnum.LOGOUT)
-        db.session.add(history),
+        user_agent = request.user_agent.string
+        browser = get_browser(user_agent)
+        history = AuthHistory(user=user, user_agent=user_agent, action=ActionsEnum.LOGOUT, browser=browser)
+        db.session.add(history)
         db.session.commit()
 
         return {'message': 'Successfully logged out'}, HTTPStatus.OK
