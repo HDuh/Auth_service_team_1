@@ -1,3 +1,5 @@
+import os
+
 import redis
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
@@ -42,22 +44,21 @@ cache = redis.Redis(
 
 oauth = OAuth(app)
 
+if not os.getenv('TEST_RUN_CONFIG', False):
+    # create_tracer
+    @app.before_request
+    def before_request():
+        request_id = request.headers.get('X-Request-Id')
+        if not request_id:
+            raise RuntimeError('request id is required')
 
-# create_tracer
 
-@app.before_request
-def before_request():
-    request_id = request.headers.get('X-Request-Id')
-    if not request_id:
-        raise RuntimeError('request id is required')
+    configure_tracer(host=PROJECT_CONFIG.JAEGER_AGENT_HOST_NAME, port=PROJECT_CONFIG.JAEGER_AGENT_PORT)
+    FlaskInstrumentor().instrument_app(app)
 
-
-configure_tracer(host=PROJECT_CONFIG.JAEGER_AGENT_HOST_NAME, port=PROJECT_CONFIG.JAEGER_AGENT_PORT)
-FlaskInstrumentor().instrument_app(app)
-
-# create limiter
-limiter = Limiter(key_func=get_remote_address,
-                  default_limits=['300/day', '60/hour', '10/minute', '5/second'],
-                  storage_uri=f'redis://{PROJECT_CONFIG.CACHE_HOST}:{PROJECT_CONFIG.CACHE_PORT}'
-                              f'/{PROJECT_CONFIG.LIMITER_DB}')
-limiter.init_app(app)
+    # create limiter
+    limiter = Limiter(key_func=get_remote_address,
+                      default_limits=['300/day', '60/hour', '10/minute', '5/second'],
+                      storage_uri=f'redis://{PROJECT_CONFIG.CACHE_HOST}:{PROJECT_CONFIG.CACHE_PORT}'
+                                  f'/{PROJECT_CONFIG.LIMITER_DB}')
+    limiter.init_app(app)
