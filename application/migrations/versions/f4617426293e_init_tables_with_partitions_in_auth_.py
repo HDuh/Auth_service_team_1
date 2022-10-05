@@ -1,8 +1,8 @@
-"""Init all tables
+"""init tables with  partitions in auth_history table
 
-Revision ID: 1afeeb8b1cec
+Revision ID: f4617426293e
 Revises: 
-Create Date: 2022-09-22 18:58:31.842760
+Create Date: 2022-10-04 14:31:14.175935
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '1afeeb8b1cec'
+revision = 'f4617426293e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,9 +46,32 @@ def upgrade():
     sa.Column('user_agent', sa.String(length=256), nullable=True),
     sa.Column('action', sa.Enum('SIGNUP', 'LOGIN', 'LOGOUT', 'CHANGE_PASSWORD', 'CHANGE_LOGIN', name='actions_names'), nullable=False),
     sa.Column('action_time', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('browser', sa.String(length=128), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id', 'browser'),
+    sa.UniqueConstraint('id', 'browser'),
+    postgresql_partition_by='LIST (browser)'
     )
+
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_chrome" PARTITION OF "auth_history" FOR VALUES IN ('Chrome')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_firefox" PARTITION OF "auth_history" FOR VALUES IN ('Firefox')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_opera" PARTITION OF "auth_history" FOR VALUES IN ('Opera')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_safari" PARTITION OF "auth_history" FOR VALUES IN ('Safari')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_yandex" PARTITION OF "auth_history" FOR VALUES IN ('Yandex')"""
+    )
+    op.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_unknown" PARTITION OF "auth_history" FOR VALUES IN ('Unknown')"""
+    )
+
     op.create_table('profile',
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -103,9 +126,9 @@ def downgrade():
     op.drop_table('user')
     op.drop_table('role')
     op.drop_table('permission')
-    # ### end Alembic commands ###
-
 
     # DROP custom types
     sa.Enum(name='actions_names').drop(op.get_bind(), checkfirst=False)
     sa.Enum(name='genders_names').drop(op.get_bind(), checkfirst=False)
+
+    # ### end Alembic commands ###

@@ -12,7 +12,7 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
-from core import PROJECT_CONFIG, GoogleClient, YandexClient, MailClient, configure_tracer
+from core import PROJECT_CONFIG, configure_tracer
 
 app = Flask(__name__)
 
@@ -41,12 +41,9 @@ cache = redis.Redis(
 )
 
 oauth = OAuth(app)
-providers = {
-    'google': oauth.register(**GoogleClient().dict()),
-    'yandex': oauth.register(**YandexClient().dict()),
-    'mail': oauth.register(**MailClient().dict()),
-}
 
+
+# create_tracer
 
 @app.before_request
 def before_request():
@@ -55,12 +52,12 @@ def before_request():
         raise RuntimeError('request id is required')
 
 
-# create_tracer
 configure_tracer(host=PROJECT_CONFIG.JAEGER_AGENT_HOST_NAME, port=PROJECT_CONFIG.JAEGER_AGENT_PORT)
 FlaskInstrumentor().instrument_app(app)
 
 # create limiter
 limiter = Limiter(key_func=get_remote_address,
-                  default_limits=['300/day', '60/hour', '10/minute', '1/second'],
-                  storage_uri=f'redis://{PROJECT_CONFIG.CACHE_HOST}:{PROJECT_CONFIG.CACHE_PORT}')
+                  default_limits=['300/day', '60/hour', '10/minute', '5/second'],
+                  storage_uri=f'redis://{PROJECT_CONFIG.CACHE_HOST}:{PROJECT_CONFIG.CACHE_PORT}'
+                              f'/{PROJECT_CONFIG.LIMITER_DB}')
 limiter.init_app(app)
