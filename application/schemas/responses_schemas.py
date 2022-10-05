@@ -23,3 +23,8 @@ class UserProfileResponse(Schema):
     last_name = fields.Str()
     age = fields.Int()
     country = fields.Str()
+
+
+class SwaggerSocialResponse(Schema):
+    provider_name = fields.Str()
+    redirect_uri = fields.Str()
