@@ -10,6 +10,7 @@ def registration(docs):
     docs.register(Logout, blueprint='auth')
     docs.register(Refresh, blueprint='auth')
     docs.register(ChangeCredentials, blueprint='auth')
+    docs.register(SocialAuthorize, blueprint='auth')
 
     docs.register(UserProfile, blueprint='auth')
     docs.register(UserAuthHistory, blueprint='auth')
@@ -17,4 +18,3 @@ def registration(docs):
     docs.register(Roles, blueprint='role')
     docs.register(RoleList, blueprint='role')
     docs.register(UserRole, blueprint='role')
-    docs.register(SocialAuthorize, blueprint='auth')
