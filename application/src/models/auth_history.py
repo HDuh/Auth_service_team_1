@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 
-from extensions import db
+from src.extensions import db
 from models.models_enums import ActionsEnum
 
 __all__ = (

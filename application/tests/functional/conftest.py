@@ -4,19 +4,19 @@ from http import HTTPStatus
 
 import requests
 
-from application.app import db
-from application.models import User, Role
-from application.services.permissions import init_permissions, init_default_roles
-from tests.functional.constants import TEST_LOGIN_DATA, TEST_SIGN_UP_DATA, TEST_ROLE_NAME
-from tests.functional.utils import clear_tables
-from .test_config import Config
+from src.core import PROJECT_CONFIG
+from src.extensions import db
+from src.models import User, Role
+from src.services.permissions import init_permissions, init_default_roles
+from .constants import TEST_LOGIN_DATA, TEST_SIGN_UP_DATA, TEST_ROLE_NAME
+from .utils import clear_tables
 
 
 class TestBase(unittest.TestCase):
     def setUp(self):
         db.create_all()
-        init_permissions(db, Config)
-        init_default_roles(db, Config)
+        init_permissions(db, PROJECT_CONFIG)
+        init_default_roles(db, PROJECT_CONFIG)
 
     def tearDown(self):
         db.session.remove()
@@ -30,7 +30,7 @@ class AuthActions(object):
         self.headers = {
             'Content-Type': 'application/json'
         }
-        self.base_url = f"http://{Config.FLASK_HOST}:{Config.FLASK_PORT}"
+        self.base_url = f"http://{PROJECT_CONFIG.FLASK_HOST}:{PROJECT_CONFIG.FLASK_PORT}"
 
     def signup(self, data=TEST_SIGN_UP_DATA):
         url = f"{self.base_url}/signup"
@@ -80,7 +80,7 @@ class RoleActions(object):
 
     def create_role(self, role_name=TEST_ROLE_NAME):
         payload = json.dumps({'role_name': role_name,
-                              'permissions': Config.BASE_PERMISSIONS[:2]})
+                              'permissions': PROJECT_CONFIG.BASE_PERMISSIONS[:2]})
         response = requests.request("POST", self.url, headers=self.headers, data=payload)
 
         return response
@@ -88,7 +88,7 @@ class RoleActions(object):
     def update_role(self, new_role_name, role_name=TEST_ROLE_NAME):
         payload = json.dumps({'role_name': role_name,
                               'new_role_name': new_role_name,
-                              'permissions': Config.BASE_PERMISSIONS[2:]})
+                              'permissions': PROJECT_CONFIG.BASE_PERMISSIONS[2:]})
         response = requests.request("PATCH", self.url, headers=self.headers, data=payload)
 
         return response

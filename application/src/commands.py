@@ -19,7 +19,7 @@ def create_user(password):
 def fill_db():
     """Add to DB starting permissions and roles """
     try:
-        from application.services.permissions import init_permissions, init_default_roles
+        from src.services.permissions import init_permissions, init_default_roles
 
         init_permissions(db, PROJECT_CONFIG)
         init_default_roles(db, PROJECT_CONFIG)

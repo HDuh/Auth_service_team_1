@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import requests
 
-from application.models import User, Profile, AuthHistory
+from src.models import User, Profile, AuthHistory
 from tests.functional.conftest import TestBase, AuthActions
 from tests.functional.constants import TEST_MAIL, TEST_SIGN_UP_DATA
 

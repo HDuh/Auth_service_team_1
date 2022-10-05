@@ -5,7 +5,7 @@ import requests
 
 from tests.functional.conftest import TestBase, AuthActions, RoleActions
 from tests.functional.constants import TEST_ROLE_NAME
-from tests.functional.test_config import Config
+from src.core import PROJECT_CONFIG
 
 
 class TestRoles(TestBase):
@@ -16,7 +16,7 @@ class TestRoles(TestBase):
         headers = auth.headers
         headers.update({'Authorization': f'Bearer {auth.access_token}'})
         payload = json.dumps({'role_name': TEST_ROLE_NAME,
-                              'permissions': Config.BASE_PERMISSIONS})
+                              'permissions': PROJECT_CONFIG.BASE_PERMISSIONS})
 
         response = requests.request("POST", url, headers=auth.headers, data=payload)
         self.assertEqual(HTTPStatus.CREATED, response.status_code)

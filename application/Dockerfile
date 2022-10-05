@@ -12,6 +12,6 @@ RUN pip install --upgrade pip --no-cache-dir\
 
 COPY . .
 
-RUN apt update && apt install -y netcat && chmod +x waiter.sh
+RUN apt update && apt install -y netcat && chmod +x src/waiter.sh
 
-ENTRYPOINT ./waiter.sh && python3 pywsgi.py
+ENTRYPOINT src/waiter.sh && python3 src/app.py

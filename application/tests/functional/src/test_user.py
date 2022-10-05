@@ -1,10 +1,8 @@
-import uuid
 from http import HTTPStatus
 
 import requests
 
-from application.extensions import db
-from application.models import User, Role
+from src.models import User
 from tests.functional.conftest import TestBase, AuthActions
 from tests.functional.constants import TEST_MAIL
 
