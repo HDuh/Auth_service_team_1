@@ -1,4 +1,5 @@
 from api.v1.auth.auth import SignUp, Logout, Refresh, ChangeCredentials, Login
+from api.v1.auth.oauth import SocialAuthorize
 from api.v1.auth.user import UserProfile, UserAuthHistory
 from api.v1.role.role import Roles, RoleList, UserRole
 
@@ -16,3 +17,4 @@ def registration(docs):
     docs.register(Roles, blueprint='role')
     docs.register(RoleList, blueprint='role')
     docs.register(UserRole, blueprint='role')
+    docs.register(SocialAuthorize, blueprint='auth')
